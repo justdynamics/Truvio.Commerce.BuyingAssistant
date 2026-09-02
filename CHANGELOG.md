@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0-beta (2026-09-02)
+
+- Proposal lines are editable: change a quantity or remove a line (restore it again) before adding to the cart. Every edit is re-priced by the platform (customer prices, quantity breaks, stock at the new quantity) through the new `POST /truvio/buying-assistant/reprice` endpoint; the total and the "Add all to cart" count follow.
+- Follow-up turns receive the shopper's edits, so the assistant builds on the edited list instead of its original proposal.
+- Line pricing shared between the proposal and the reprice path (`ProposalPricer`).
+- Paragraph layout: new labels (Remove, Restore, Removed, Updating prices, ...) and asset version bump. Customised copies of the layout keep working; the JS falls back to English labels.
+
 ## 0.1.0-beta (2026-09-02)
 
 First public beta.

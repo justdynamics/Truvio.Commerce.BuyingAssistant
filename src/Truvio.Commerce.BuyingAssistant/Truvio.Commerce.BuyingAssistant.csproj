@@ -14,12 +14,12 @@
 
     <!-- NuGet / Dynamicweb App Store metadata -->
     <PackageId>Truvio.Commerce.BuyingAssistant</PackageId>
-    <Version>0.1.0-beta</Version>
-    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <Version>0.2.0-beta</Version>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
     <Title>Truvio Buying Assistant</Title>
     <Description>Truvio Buying Assistant: an AI buying assistant for Dynamicweb 10 storefronts, by JustDynamics.
 
-A shopper describes what they need in plain language ("everything to open a 20,000 gallon pool", "1,800 sq ft gable roof, full tear-off", "replacement union set for a 1 HP pump", "same as my last order but for 32 squares"). The assistant searches the live catalog, sizes the job with your own rules, prices every line at that customer's prices with quantity breaks, checks stock per location and returns a cart-ready proposal with a live activity feed, the reasoning per line, and one "Add all to cart" button. Follow-up questions refine the same proposal. Everything the model proposes is re-priced by the platform before it reaches the cart.
+A shopper describes what they need in plain language ("everything to open a 20,000 gallon pool", "1,800 sq ft gable roof, full tear-off", "replacement union set for a 1 HP pump", "same as my last order but for 32 squares"). The assistant searches the live catalog, sizes the job with your own rules, prices every line at that customer's prices with quantity breaks, checks stock per location and returns a cart-ready proposal with a live activity feed, the reasoning per line, and one "Add all to cart" button. The shopper can change quantities or drop lines (re-priced live with quantity breaks) before adding, and follow-up questions refine the same, edited proposal. Everything the model proposes is re-priced by the platform before it reaches the cart.
 
 SET UP WITH DYNAMO (recommended)
 After installing and restarting, open Dynamo (the backend AI assistant) and type:

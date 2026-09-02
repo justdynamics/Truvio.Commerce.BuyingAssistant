@@ -55,3 +55,19 @@
 .tba__reset{font-size:.85rem}
 .tba--locked .tba__intro{margin-bottom:0}
 @media (max-width:767px){.tba{padding:1rem}}
+/* Editable proposal lines (0.2.0) */
+.tba__qty-input{width:4.5rem;display:inline-block;text-align:right;font-weight:600;padding:.15rem .35rem}
+.tba__qty-input:disabled{background:transparent;border-color:transparent;color:var(--tba-muted)}
+.tba__th-remove{width:2.5rem}
+.tba__remove-cell{text-align:center;white-space:nowrap}
+.tba__remove{border:1px solid var(--tba-line);background:#fff;color:var(--tba-muted);border-radius:4px;line-height:1;padding:.15rem .45rem;font-size:1rem;cursor:pointer}
+.tba__remove:hover{color:#a8141e;border-color:#a8141e}
+.tba__remove--restore{font-size:.75rem;font-weight:600;color:var(--tba-accent);padding:.25rem .5rem}
+.tba__remove--restore:hover{color:var(--tba-accent);border-color:var(--tba-accent)}
+.tba__line.is-removed td{opacity:.5}
+.tba__line.is-removed .tba__remove-cell,.tba__line.is-removed .tba__remove{opacity:1}
+.tba__line.is-removed .tba__line-name,.tba__line.is-removed .tba__total,.tba__line.is-removed .tba__price{text-decoration:line-through}
+.tba__removed-tag{display:inline-block;margin-left:.4rem;font-size:.7rem;font-weight:600;color:#a8141e;text-decoration:none;text-transform:uppercase;letter-spacing:.06em}
+.tba__reprice-status{font-size:.78rem;color:var(--tba-muted);white-space:nowrap}
+.tba.is-repricing .tba__grand,.tba.is-repricing .tba__total{opacity:.5}
+.tba.is-repricing .tba__reprice-status::before{content:"";display:inline-block;width:.65rem;height:.65rem;margin-right:.35rem;border:2px solid var(--tba-accent);border-right-color:transparent;border-radius:50%;vertical-align:-.05rem;animation:tba-spin .8s linear infinite}

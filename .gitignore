@@ -11,3 +11,4 @@ docs/*.png
 # Recordings and packages are not source.
 *.mp4
 *.webm
+artifacts/*.png

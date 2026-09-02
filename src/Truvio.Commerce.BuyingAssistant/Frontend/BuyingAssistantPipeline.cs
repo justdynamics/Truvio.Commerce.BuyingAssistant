@@ -47,6 +47,7 @@ public sealed class BuyingAssistantPipeline : IPipeline
             branch.UseEndpoints(endpoints =>
             {
                 endpoints.MapPost(BasePath + "/ask", AskAsync);
+                endpoints.MapPost(BasePath + "/reprice", RepriceAsync);
                 endpoints.MapGet(BasePath + "/assets/{file}", ServeAsset);
                 endpoints.MapGet(BasePath + "/ping", ctx => ctx.Response.WriteAsync("ok"));
                 endpoints.MapGet(BasePath + "/diagnose", DiagnoseAsync);
@@ -110,6 +111,23 @@ public sealed class BuyingAssistantPipeline : IPipeline
         public string? ProductId { get; set; }
         public string? VariantId { get; set; }
         public string? ProductName { get; set; }
+        /// <summary>Manual edits of the previous proposal (quantities, removed lines), sent with follow-ups.</summary>
+        public List<ProposalEdit>? Edits { get; set; }
+    }
+
+    private sealed class RepriceBody
+    {
+        public int PageId { get; set; }
+        public List<RepriceLine>? Lines { get; set; }
+    }
+
+    private sealed class RepriceLine
+    {
+        public string? ProductId { get; set; }
+        public string? VariantId { get; set; }
+        public string? UnitId { get; set; }
+        public double Quantity { get; set; }
+        public string? Reason { get; set; }
     }
 
     private static async Task AskAsync(HttpContext ctx)
@@ -194,6 +212,7 @@ public sealed class BuyingAssistantPipeline : IPipeline
             ContextProductId = string.IsNullOrWhiteSpace(body.ProductId) ? null : body.ProductId.Trim(),
             ContextVariantId = string.IsNullOrWhiteSpace(body.VariantId) ? null : body.VariantId.Trim(),
             ContextProductName = string.IsNullOrWhiteSpace(body.ProductName) ? null : body.ProductName.Trim(),
+            Edits = body.Edits is { Count: > 0 } ? body.Edits : null,
         };
         request.PlacementMode = request.ContextProductId != null ? "product" : "standalone";
         ApplyParagraphSettings(body.ParagraphId, request);
@@ -209,6 +228,58 @@ public sealed class BuyingAssistantPipeline : IPipeline
             Logger.Info($"conversation={result.ConversationId} user={user?.UserName ?? "anonymous"} page={body.PageId} product={body.ProductId} lines={result.Lines.Count} total={result.TotalFormatted} tokens_in={result.InputTokens} cache_read={result.CacheReadTokens} tokens_out={result.OutputTokens} tools={result.ToolCalls} iterations={result.Iterations} seconds={result.ElapsedSeconds} error={result.Error} prompt=\"{Truncate(request.Message, 300)}\"");
         }
         return result;
+    }
+
+    // ---- Reprice ---------------------------------------------------------------------------------
+
+    /// <summary>
+    /// POST /truvio/buying-assistant/reprice: re-prices the lines of a proposal after the shopper
+    /// changed quantities or removed lines in the widget. Same pricing path as the proposal itself
+    /// (customer prices, quantity breaks, stock), no model call.
+    /// </summary>
+    private static async Task RepriceAsync(HttpContext ctx)
+    {
+        var ct = ctx.RequestAborted;
+        RepriceBody? body;
+        try { body = await JsonSerializer.DeserializeAsync<RepriceBody>(ctx.Request.Body, Json, ct).ConfigureAwait(false); }
+        catch { body = null; }
+        if (body == null || body.PageId <= 0 || body.Lines == null)
+        {
+            ctx.Response.StatusCode = 400;
+            await ctx.Response.WriteAsync("Missing lines or page.", ct).ConfigureAwait(false);
+            return;
+        }
+        object payload;
+        try
+        {
+            payload = await Task.Run(() =>
+            {
+                var settings = DwAssistantSettings.Current;
+                using var isolation = new PageViewIsolation(body.PageId);
+                var pageView = PageView.Current();
+                if (pageView == null || pageView.Area == null) return new { error = "Unknown page." };
+                var user = UserContext.Current.User;
+                if (user == null && !settings.AllowAnonymous) return new { error = "Sign in to use the assistant." };
+                var gateway = new DwCatalogGateway(settings);
+                var lines = new List<ProposalLine>();
+                foreach (var l in body.Lines.Take(200))
+                {
+                    if (string.IsNullOrWhiteSpace(l.ProductId) || l.Quantity <= 0) continue;
+                    var line = ProposalPricer.Price(gateway, l.ProductId.Trim(), l.VariantId?.Trim(), l.Quantity, l.UnitId, l.Reason ?? "");
+                    if (line != null) lines.Add(line);
+                }
+                var total = lines.Sum(x => x.LineTotal);
+                return (object)new { lines, total, totalFormatted = gateway.FormatMoney(total), count = lines.Count };
+            }, ct).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error("Reprice failed", ex);
+            payload = new { error = "Prices could not be updated." };
+        }
+        ctx.Response.ContentType = "application/json; charset=utf-8";
+        ctx.Response.Headers["Cache-Control"] = "no-store";
+        await ctx.Response.WriteAsync(JsonSerializer.Serialize(payload, Json), ct).ConfigureAwait(false);
     }
 
     private static string OwnerKey(User? user)

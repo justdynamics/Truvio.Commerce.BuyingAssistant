@@ -1,7 +1,9 @@
 /* Truvio Buying Assistant storefront widget.
    Talks to /truvio/buying-assistant/ask (server-sent events), renders the activity feed and the
-   priced proposal, adds every line to the cart through the shop's cart service, and keeps the
-   conversation id so follow-up questions refine the same proposal. No dependencies. */
+   priced proposal, lets the shopper change quantities or remove lines (re-priced through
+   /truvio/buying-assistant/reprice), adds every kept line to the cart through the shop's cart
+   service, and keeps the conversation id so follow-up questions refine the same proposal.
+   No dependencies. */
 (function () {
     if (window.__truvioBuyingAssistantInit) return;
     window.__truvioBuyingAssistantInit = true;
@@ -75,7 +77,8 @@
             paragraphId: parseInt(widget.getAttribute('data-tba-paragraph') || '0', 10),
             productId: widget.getAttribute('data-tba-product') || '',
             variantId: widget.getAttribute('data-tba-variant') || '',
-            productName: widget.getAttribute('data-tba-product-name') || ''
+            productName: widget.getAttribute('data-tba-product-name') || '',
+            edits: collectEdits(widget)
         };
 
         fetch(widget.getAttribute('data-tba-endpoint') || '/truvio/buying-assistant/ask', {
@@ -168,26 +171,12 @@
         if (data.lines && data.lines.length) {
             var wrap = el('div', 'tba__table-wrap');
             var t = el('table', 'table table-sm tba__table');
-            t.innerHTML = '<thead><tr><th>' + esc(L.item || 'Item') + '</th><th class="text-end">' + esc(L.qty || 'Qty') + '</th><th class="text-end">' + esc(L.unitPrice || 'Unit price') + '</th><th class="text-end">' + esc(L.lineTotal || 'Line total') + '</th><th>' + esc(L.stock || 'Stock') + '</th></tr></thead>';
+            t.innerHTML = '<thead><tr><th>' + esc(L.item || 'Item') + '</th><th class="text-end">' + esc(L.qty || 'Qty') + '</th><th class="text-end">' + esc(L.unitPrice || 'Unit price') + '</th><th class="text-end">' + esc(L.lineTotal || 'Line total') + '</th><th>' + esc(L.stock || 'Stock') + '</th><th class="tba__th-remove"><span class="visually-hidden">' + esc(L.remove || 'Remove') + '</span></th></tr></thead>';
             var tb = el('tbody');
-            data.lines.forEach(function (line) {
-                var tr = el('tr', 'tba__line' + (line.isContextProduct ? ' is-context' : ''));
-                tr.setAttribute('data-tba-line', '');
-                tr.setAttribute('data-product-id', line.productId);
-                tr.setAttribute('data-variant-id', line.variantId || '');
-                tr.setAttribute('data-quantity', line.quantity);
-                if (line.unitId) tr.setAttribute('data-unit-id', line.unitId);
-                tr.innerHTML =
-                    '<td><div class="tba__line-name">' + esc(line.name) + '</div><div class="tba__line-meta"><span class="tba__sku">' + esc(line.sku) + '</span>' + (line.reason ? '<span class="tba__reason">' + esc(line.reason) + '</span>' : '') + '</div></td>' +
-                    '<td class="text-end tba__qty">' + esc(line.quantity) + (line.unit ? ' <span class="tba__unit">' + esc(line.unit) + '</span>' : '') + '</td>' +
-                    '<td class="text-end">' + esc(line.unitPriceFormatted) + (line.tierLabel ? '<span class="tba__tier">' + esc(line.tierLabel) + '</span>' : '') + '</td>' +
-                    '<td class="text-end tba__total">' + esc(line.lineTotalFormatted) + '</td>' +
-                    '<td><span class="tba__stock ' + (line.inStock ? 'is-instock' : 'is-short') + '"><span class="tba__stock-dot" aria-hidden="true"></span>' + esc(line.stockLabel) + '</span></td>';
-                tb.appendChild(tr);
-            });
+            data.lines.forEach(function (line) { tb.appendChild(renderLine(widget, line)); });
             t.appendChild(tb);
             var tf = el('tfoot');
-            tf.innerHTML = '<tr><td colspan="3" class="text-end">' + esc(L.estimated || 'Estimated total') + '</td><td class="text-end tba__grand">' + esc(data.totalFormatted) + '</td><td></td></tr>';
+            tf.innerHTML = '<tr><td colspan="3" class="text-end">' + esc(L.estimated || 'Estimated total') + '</td><td class="text-end tba__grand" data-tba-grand>' + esc(data.totalFormatted) + '</td><td colspan="2"><span class="tba__reprice-status" data-tba-reprice-status aria-live="polite"></span></td></tr>';
             t.appendChild(tf);
             wrap.appendChild(t);
             box.appendChild(wrap);
@@ -198,7 +187,7 @@
             var hideCart = widget.getAttribute('data-tba-hide-cart') === 'true';
             var cartService = widget.getAttribute('data-tba-cart-service');
             if (!hideCart && cartService) {
-                var addBtn = el('button', 'btn btn-primary', esc(widget.getAttribute('data-tba-add-all-label') || 'Add all to cart') + ' (' + data.lines.length + ')');
+                var addBtn = el('button', 'btn btn-primary', esc(widget.getAttribute('data-tba-add-all-label') || 'Add all to cart') + ' (<span data-tba-count>' + data.lines.length + '</span>)');
                 addBtn.type = 'button';
                 addBtn.setAttribute('data-tba-addall', '');
                 actions.appendChild(addBtn);
@@ -232,13 +221,208 @@
         box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
+
+    // ---- Editable lines ------------------------------------------------------------------------
+
+    function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
+
+    function renderLine(widget, line) {
+        var L = labels(widget);
+        var tr = el('tr', 'tba__line' + (line.isContextProduct ? ' is-context' : ''));
+        tr.setAttribute('data-tba-line', '');
+        tr.setAttribute('data-product-id', line.productId);
+        tr.setAttribute('data-variant-id', line.variantId || '');
+        tr.setAttribute('data-quantity', line.quantity);
+        tr.setAttribute('data-original-quantity', line.quantity);
+        tr.setAttribute('data-sku', line.sku || '');
+        tr.setAttribute('data-name', line.name || '');
+        tr.setAttribute('data-reason', line.reason || '');
+        if (line.unitId) tr.setAttribute('data-unit-id', line.unitId);
+        tr.innerHTML =
+            '<td><div class="tba__line-name">' + esc(line.name) + '</div><div class="tba__line-meta"><span class="tba__sku">' + esc(line.sku) + '</span>' + (line.reason ? '<span class="tba__reason">' + esc(line.reason) + '</span>' : '') + '</div></td>' +
+            '<td class="text-end tba__qty"><input type="number" class="form-control form-control-sm tba__qty-input" min="1" step="1" inputmode="numeric" value="' + esc(line.quantity) + '" aria-label="' + esc(L.qty || 'Qty') + '" data-tba-qty>' + (line.unit ? ' <span class="tba__unit">' + esc(line.unit) + '</span>' : '') + '</td>' +
+            '<td class="text-end tba__price">' + priceCell(line) + '</td>' +
+            '<td class="text-end tba__total">' + esc(line.lineTotalFormatted) + '</td>' +
+            '<td class="tba__stock-cell">' + stockCell(line) + '</td>' +
+            '<td class="tba__remove-cell"><button type="button" class="tba__remove" data-tba-remove title="' + esc(L.remove || 'Remove') + '" aria-label="' + esc(L.remove || 'Remove') + '">&times;</button></td>';
+        return tr;
+    }
+
+    function priceCell(line) {
+        return esc(line.unitPriceFormatted) + (line.tierLabel ? '<span class="tba__tier">' + esc(line.tierLabel) + '</span>' : '');
+    }
+    function stockCell(line) {
+        return '<span class="tba__stock ' + (line.inStock ? 'is-instock' : 'is-short') + '"><span class="tba__stock-dot" aria-hidden="true"></span>' + esc(line.stockLabel) + '</span>';
+    }
+
+    function liveLines(widget) {
+        return Array.prototype.slice.call(widget.querySelectorAll('[data-tba-line]:not(.is-removed)'));
+    }
+
+    function updateCount(widget) {
+        var n = liveLines(widget).length;
+        var c = widget.querySelector('[data-tba-count]');
+        if (c) c.textContent = n;
+        var btn = widget.querySelector('[data-tba-addall]');
+        if (btn) btn.disabled = n === 0 || widget.classList.contains('is-repricing');
+    }
+
+    function setLineRemoved(row, removed) {
+        var widget = root(row);
+        var L = labels(widget);
+        row.classList.toggle('is-removed', removed);
+        var input = row.querySelector('[data-tba-qty]');
+        if (input) input.disabled = removed;
+        var btn = row.querySelector('[data-tba-remove]');
+        if (btn) {
+            btn.innerHTML = removed ? esc(L.restore || 'Restore') : '&times;';
+            btn.classList.toggle('tba__remove--restore', removed);
+            btn.title = removed ? (L.restore || 'Restore') : (L.remove || 'Remove');
+            btn.setAttribute('aria-label', btn.title);
+        }
+        var name = row.querySelector('.tba__line-name');
+        if (name) {
+            var tag = name.querySelector('.tba__removed-tag');
+            if (removed && !tag) name.appendChild(el('span', 'tba__removed-tag', esc(L.removed || 'Removed')));
+            else if (!removed && tag) tag.remove();
+        }
+        widget.classList.remove('is-added');
+        updateCount(widget);
+        scheduleReprice(widget);
+    }
+
+    var repriceTimers = {};
+    function scheduleReprice(widget) {
+        var id = widget.id || 'tba';
+        clearTimeout(repriceTimers[id]);
+        repriceTimers[id] = setTimeout(function () { reprice(widget); }, 450);
+    }
+
+    function reprice(widget) {
+        var L = labels(widget);
+        var rows = liveLines(widget);
+        var status = widget.querySelector('[data-tba-reprice-status]');
+        var grand = widget.querySelector('[data-tba-grand]');
+        var payload = rows.map(function (r) {
+            return {
+                productId: r.getAttribute('data-product-id'),
+                variantId: r.getAttribute('data-variant-id') || '',
+                unitId: r.getAttribute('data-unit-id') || null,
+                quantity: num(r.getAttribute('data-quantity')),
+                reason: r.getAttribute('data-reason') || ''
+            };
+        });
+        if (!rows.length) {
+            if (grand) grand.textContent = '';
+            if (status) status.textContent = L.noLines || 'No lines left';
+            updateCount(widget);
+            return;
+        }
+        var seq = (num(widget.getAttribute('data-tba-reprice-seq')) || 0) + 1;
+        widget.setAttribute('data-tba-reprice-seq', seq);
+        widget.classList.add('is-repricing');
+        updateCount(widget);
+        if (status) status.textContent = L.repricing || 'Updating prices';
+        var endpoint = (widget.getAttribute('data-tba-endpoint') || '/truvio/buying-assistant/ask').replace(/\/ask$/, '') + '/reprice';
+        fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ pageId: parseInt(widget.getAttribute('data-tba-page') || '0', 10), lines: payload })
+        }).then(function (r) { return r.ok ? r.json() : null; }).then(function (data) {
+            if (num(widget.getAttribute('data-tba-reprice-seq')) !== seq) return; // a newer edit is in flight
+            widget.classList.remove('is-repricing');
+            if (!data || data.error || !data.lines) {
+                if (status) status.textContent = (data && data.error) || L.repriceError || 'Prices could not be updated';
+                updateCount(widget);
+                return;
+            }
+            data.lines.forEach(function (line) {
+                var row = null;
+                rows.some(function (r) {
+                    if (r.getAttribute('data-product-id') === line.productId && (r.getAttribute('data-variant-id') || '') === (line.variantId || '') && num(r.getAttribute('data-quantity')) === line.quantity) { row = r; return true; }
+                    return false;
+                });
+                if (!row) return;
+                var price = row.querySelector('.tba__price'); if (price) price.innerHTML = priceCell(line);
+                var total = row.querySelector('.tba__total'); if (total) total.textContent = line.lineTotalFormatted;
+                var stock = row.querySelector('.tba__stock-cell'); if (stock) stock.innerHTML = stockCell(line);
+                var input = row.querySelector('[data-tba-qty]'); if (input && num(input.value) !== line.quantity) input.value = line.quantity;
+            });
+            if (grand) grand.textContent = data.totalFormatted || '';
+            if (status) status.textContent = collectEdits(widget).length ? (L.edited || 'Edited by you, re-priced') : '';
+            updateCount(widget);
+        }).catch(function () {
+            if (num(widget.getAttribute('data-tba-reprice-seq')) !== seq) return;
+            widget.classList.remove('is-repricing');
+            if (status) status.textContent = L.repriceError || 'Prices could not be updated';
+            updateCount(widget);
+        });
+    }
+
+    // Quantity changes and removed lines relative to the proposal as the assistant made it.
+    function collectEdits(widget) {
+        var edits = [];
+        var rows = widget.querySelectorAll('[data-tba-line]');
+        for (var i = 0; i < rows.length; i++) {
+            var r = rows[i];
+            var removed = r.classList.contains('is-removed');
+            var qty = num(r.getAttribute('data-quantity'));
+            var orig = num(r.getAttribute('data-original-quantity'));
+            if (!removed && qty === orig) continue;
+            edits.push({
+                productId: r.getAttribute('data-product-id'),
+                variantId: r.getAttribute('data-variant-id') || '',
+                sku: r.getAttribute('data-sku') || '',
+                name: r.getAttribute('data-name') || '',
+                quantity: qty,
+                originalQuantity: orig,
+                removed: removed
+            });
+        }
+        return edits;
+    }
+
+    function onQtyInput(input) {
+        var row = input.closest('[data-tba-line]');
+        if (!row) return;
+        var widget = root(row);
+        var v = Math.ceil(num(input.value));
+        if (v < 1) return; // wait for a valid number; the blur handler restores it
+        row.setAttribute('data-quantity', v);
+        widget.classList.remove('is-added');
+        row.classList.remove('is-added');
+        scheduleReprice(widget);
+    }
+
+    function onQtyBlur(input) {
+        var row = input.closest('[data-tba-line]');
+        if (!row) return;
+        var v = Math.ceil(num(input.value));
+        if (v < 1) { v = num(row.getAttribute('data-quantity')) || 1; input.value = v; }
+        else if (String(v) !== input.value) { input.value = v; row.setAttribute('data-quantity', v); scheduleReprice(root(row)); }
+    }
+
+    document.addEventListener('input', function (e) {
+        var t = e.target;
+        if (t && t.matches && t.matches('[data-tba-qty]')) onQtyInput(t);
+    });
+    document.addEventListener('change', function (e) {
+        var t = e.target;
+        if (t && t.matches && t.matches('[data-tba-qty]')) onQtyBlur(t);
+    });
+    document.addEventListener('keydown', function (e) {
+        var t = e.target;
+        if (e.key === 'Enter' && t && t.matches && t.matches('[data-tba-qty]')) { e.preventDefault(); t.blur(); }
+    });
+
     function addAll(button) {
         var widget = root(button);
         if (!widget) return;
         var L = labels(widget);
         var cartUrl = widget.getAttribute('data-tba-cart-service');
-        var lines = Array.prototype.slice.call(widget.querySelectorAll('[data-tba-line]'));
-        if (!cartUrl || !lines.length) return;
+        var lines = liveLines(widget);
+        if (!cartUrl || !lines.length || widget.classList.contains('is-repricing')) return;
         button.disabled = true;
         var status = widget.querySelector('[data-tba-addall-status]');
         var done = 0;
@@ -246,6 +430,7 @@
             if (i >= lines.length) {
                 if (status) status.textContent = fmt(L.added || 'Added {0} lines to your cart', done);
                 widget.classList.add('is-added');
+                button.disabled = false;
                 var go = widget.querySelector('[data-tba-view-cart]');
                 if (go) go.hidden = false;
                 // Swift's mini cart listens for this event (same one its own add-to-cart raises).
@@ -294,8 +479,14 @@
     });
 
     document.addEventListener('click', function (e) {
-        var t = e.target.closest ? e.target.closest('[data-tba-example], [data-tba-addall], [data-tba-reset]') : null;
+        var t = e.target.closest ? e.target.closest('[data-tba-example], [data-tba-addall], [data-tba-reset], [data-tba-remove]') : null;
         if (!t) return;
+        if (t.hasAttribute('data-tba-remove')) {
+            e.preventDefault();
+            var row = t.closest('[data-tba-line]');
+            if (row) setLineRemoved(row, !row.classList.contains('is-removed'));
+            return;
+        }
         if (t.hasAttribute('data-tba-example')) {
             e.preventDefault();
             var widget = root(t);

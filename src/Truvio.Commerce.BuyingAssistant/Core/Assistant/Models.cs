@@ -15,6 +15,8 @@ public sealed class AssistantRequest
     public string? ExtraSkills { get; set; }
     /// <summary>"product" when placed on a product page with a product in context, otherwise "standalone".</summary>
     public string PlacementMode { get; set; } = "standalone";
+    /// <summary>Manual edits the shopper made to the previous proposal (quantity changes, removed lines) before this turn.</summary>
+    public List<ProposalEdit>? Edits { get; set; }
 }
 
 public sealed class ProposalLine

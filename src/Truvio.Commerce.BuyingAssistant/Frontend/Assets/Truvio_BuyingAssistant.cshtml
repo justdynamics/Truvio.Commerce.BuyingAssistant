@@ -4,7 +4,7 @@
 @*
     Truvio Buying Assistant paragraph (installed by the Truvio.Commerce.BuyingAssistant app).
     Renders the request box; the JS talks to /truvio/buying-assistant/ask and renders the
-    proposal live. Safe to customise: the app never overwrites an edited copy of this file.
+    proposal live; quantities can be edited and lines removed before adding to the cart. Safe to customise: the app never overwrites an edited copy of this file.
 *@
 
 @{
@@ -47,7 +47,7 @@
     string cartPageUrl = cartPageId > 0 ? "/Default.aspx?ID=" + cartPageId : "";
 
     string version = typeof(Dynamicweb.Content.Paragraph).Assembly.GetName().Version?.ToString() ?? "1";
-    string assetVersion = "20260902-1";
+    string assetVersion = "20260902-2";
     bool showWidget = !hidePrice && (!anonymousUser || allowAnonymous) && !(mode == "product" && product == null);
 }
 
@@ -66,7 +66,7 @@
              data-tba-cart-page="@cartPageUrl"
              data-tba-hide-cart="@(hideCart ? "true" : "false")"
              data-tba-add-all-label="@addAllLabel"
-             data-tba-labels='{"working":"@Translate("Working on it")","error":"@Translate("The assistant is unavailable right now. Try again in a moment.")","adding":"@Translate("Adding {0} of {1}")","added":"@Translate("Added {0} lines to your cart")","viewCart":"@Translate("View cart")","item":"@Translate("Item")","qty":"@Translate("Qty")","unitPrice":"@Translate("Unit price")","lineTotal":"@Translate("Line total")","stock":"@Translate("Stock")","assumptions":"@Translate("Assumptions")","estimated":"@Translate("Estimated total")","refine":"@Translate("Refine or ask a follow-up")","send":"@Translate("Send")","reset":"@Translate("Start over")","foot":"@Translate("Priced at your account prices. Estimate only, verify quantities before ordering.")"}'
+             data-tba-labels='{"working":"@Translate("Working on it")","error":"@Translate("The assistant is unavailable right now. Try again in a moment.")","adding":"@Translate("Adding {0} of {1}")","added":"@Translate("Added {0} lines to your cart")","viewCart":"@Translate("View cart")","item":"@Translate("Item")","qty":"@Translate("Qty")","unitPrice":"@Translate("Unit price")","lineTotal":"@Translate("Line total")","stock":"@Translate("Stock")","assumptions":"@Translate("Assumptions")","estimated":"@Translate("Estimated total")","refine":"@Translate("Refine or ask a follow-up")","send":"@Translate("Send")","reset":"@Translate("Start over")","foot":"@Translate("Priced at your account prices. Estimate only, verify quantities before ordering.")","remove":"@Translate("Remove")","restore":"@Translate("Restore")","removed":"@Translate("Removed")","repricing":"@Translate("Updating prices")","repriceError":"@Translate("Prices could not be updated")","edited":"@Translate("Edited by you, re-priced")","noLines":"@Translate("No lines left")"}'
              data-dw-colorscheme="@Model.ColorScheme?.Id">
         <div class="tba__head">
             <span class="tba__eyebrow">@Translate("Buying assistant")</span>

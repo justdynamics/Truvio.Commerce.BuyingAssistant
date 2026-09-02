@@ -55,7 +55,7 @@ By default only signed-in users get the assistant (prices and stock are customer
 
 ## Try it
 
-Sign in as a customer, open a product page, type a request and click the button. The activity feed shows what the assistant is doing (searches, product reads, pricing); the proposal table shows every line at the customer's price with quantity-break labels and stock; "Add all to cart" posts every line to the shop's cart service (Swift's `CartService` page). Follow-up questions refine the same proposal; "Start over" resets the conversation.
+Sign in as a customer, open a product page, type a request and click the button. The activity feed shows what the assistant is doing (searches, product reads, pricing); the proposal table shows every line at the customer's price with quantity-break labels and stock; Change a quantity or remove a line (the "x" button, "Restore" brings it back) and the widget re-prices the list through the platform, so quantity breaks and stock follow the new quantity. "Add all to cart" posts every kept line at its current quantity to the shop's cart service (Swift's `CartService` page). Follow-up questions refine the same proposal and see your edits; "Start over" resets the conversation.
 
 ## Where things are logged
 

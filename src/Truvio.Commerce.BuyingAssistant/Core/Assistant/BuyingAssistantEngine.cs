@@ -87,7 +87,8 @@ public sealed class BuyingAssistantEngine
         try
         {
             var history = new List<BetaMessageParam>(_store.Get(conversationId, _ownerKey));
-            history.Add(new BetaMessageParam { Role = Role.User, Content = message });
+            var editsNote = ProposalPricer.DescribeEdits(request.Edits);
+            history.Add(new BetaMessageParam { Role = Role.User, Content = editsNote == null ? message : "[" + editsNote + "]\n\n" + message });
 
             Report(AssistantEvent.Status("Reading your request"));
             await PrepareMcpAsync(ct).ConfigureAwait(false);
@@ -604,38 +605,12 @@ public sealed class BuyingAssistantEngine
             if (result.FollowUpQuestion == null && string.IsNullOrWhiteSpace(result.Summary)) result.FollowUpQuestion = "Could you tell me a bit more about what you need?";
             return;
         }
-        var stockByLocation = new Dictionary<string, IReadOnlyList<CatalogStockInfo>>();
         foreach (var (pid, vid, qtyRaw, unitId, reason) in draft.Lines)
         {
-            var qty = Math.Ceiling(qtyRaw);
             var key = pid + "|" + vid;
             if (result.Lines.Any(x => (x.ProductId + "|" + x.VariantId).Equals(key, StringComparison.OrdinalIgnoreCase))) continue;
-            var summary = _catalog.GetSummary(pid, string.IsNullOrEmpty(vid) ? null : vid);
-            if (summary == null) continue;
-            var quote = _catalog.GetPrice(summary.ProductId, summary.VariantId, qty, string.IsNullOrEmpty(unitId) ? null : unitId);
-            var unitPrice = quote?.UnitPrice ?? summary.UnitPrice ?? 0;
-            var line = new ProposalLine
-            {
-                ProductId = summary.ProductId,
-                VariantId = summary.VariantId,
-                Sku = summary.Sku,
-                Name = summary.Name,
-                Quantity = qty,
-                Unit = summary.Unit ?? "",
-                UnitId = string.IsNullOrEmpty(unitId) ? null : unitId,
-                UnitPrice = unitPrice,
-                UnitPriceFormatted = quote?.UnitPriceFormatted ?? summary.UnitPriceFormatted ?? _catalog.FormatMoney(unitPrice),
-                LineTotal = Math.Round(unitPrice * qty, 2),
-                TierLabel = quote?.TierLabel ?? "",
-                Stock = summary.Stock,
-                InStock = summary.NeverOutOfStock || summary.Stock >= qty,
-                Reason = reason,
-                IsContextProduct = request.ContextProductId != null && summary.ProductId.Equals(request.ContextProductId, StringComparison.OrdinalIgnoreCase)
-                    && (string.IsNullOrEmpty(request.ContextVariantId) || summary.VariantId.Equals(request.ContextVariantId, StringComparison.OrdinalIgnoreCase)),
-            };
-            line.LineTotalFormatted = quote?.LineTotalFormatted ?? _catalog.FormatMoney(line.LineTotal);
-            line.StockLabel = line.InStock ? "In stock" : (summary.Stock <= 0 ? "Out of stock" : $"{summary.Stock:0.##} on hand");
-            result.Lines.Add(line);
+            var line = ProposalPricer.Price(_catalog, pid, vid, qtyRaw, unitId, reason, request.ContextProductId, request.ContextVariantId);
+            if (line != null) result.Lines.Add(line);
         }
     }
 
