@@ -47,7 +47,7 @@
     string cartPageUrl = cartPageId > 0 ? "/Default.aspx?ID=" + cartPageId : "";
 
     string version = typeof(Dynamicweb.Content.Paragraph).Assembly.GetName().Version?.ToString() ?? "1";
-    string assetVersion = "20260902-2";
+    string assetVersion = "20260902-3";
     bool showWidget = !hidePrice && (!anonymousUser || allowAnonymous) && !(mode == "product" && product == null);
 }
 

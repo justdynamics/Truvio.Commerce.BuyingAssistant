@@ -68,6 +68,6 @@
 .tba__line.is-removed .tba__remove-cell,.tba__line.is-removed .tba__remove{opacity:1}
 .tba__line.is-removed .tba__line-name,.tba__line.is-removed .tba__total,.tba__line.is-removed .tba__price{text-decoration:line-through}
 .tba__removed-tag{display:inline-block;margin-left:.4rem;font-size:.7rem;font-weight:600;color:#a8141e;text-decoration:none;text-transform:uppercase;letter-spacing:.06em}
-.tba__reprice-status{font-size:.78rem;color:var(--tba-muted);white-space:nowrap}
+.tba__edit-note{font-size:.78rem;color:var(--tba-muted);white-space:nowrap}
 .tba.is-repricing .tba__grand,.tba.is-repricing .tba__total{opacity:.5}
-.tba.is-repricing .tba__reprice-status::before{content:"";display:inline-block;width:.65rem;height:.65rem;margin-right:.35rem;border:2px solid var(--tba-accent);border-right-color:transparent;border-radius:50%;vertical-align:-.05rem;animation:tba-spin .8s linear infinite}
+.tba.is-repricing .tba__edit-note::before{content:"";display:inline-block;width:.65rem;height:.65rem;margin-right:.35rem;border:2px solid var(--tba-accent);border-right-color:transparent;border-radius:50%;vertical-align:-.05rem;animation:tba-spin .8s linear infinite}

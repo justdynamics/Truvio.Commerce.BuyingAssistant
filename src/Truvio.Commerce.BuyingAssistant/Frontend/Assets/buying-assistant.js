@@ -176,7 +176,7 @@
             data.lines.forEach(function (line) { tb.appendChild(renderLine(widget, line)); });
             t.appendChild(tb);
             var tf = el('tfoot');
-            tf.innerHTML = '<tr><td colspan="3" class="text-end">' + esc(L.estimated || 'Estimated total') + '</td><td class="text-end tba__grand" data-tba-grand>' + esc(data.totalFormatted) + '</td><td colspan="2"><span class="tba__reprice-status" data-tba-reprice-status aria-live="polite"></span></td></tr>';
+            tf.innerHTML = '<tr><td colspan="3" class="text-end">' + esc(L.estimated || 'Estimated total') + '</td><td class="text-end tba__grand" data-tba-grand>' + esc(data.totalFormatted) + '</td><td colspan="2"><span class="tba__edit-note" data-tba-reprice-status aria-live="polite"></span></td></tr>';
             t.appendChild(tf);
             wrap.appendChild(t);
             box.appendChild(wrap);
