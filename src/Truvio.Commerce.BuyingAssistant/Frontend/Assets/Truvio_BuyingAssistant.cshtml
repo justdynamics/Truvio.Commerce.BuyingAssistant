@@ -1,0 +1,120 @@
+@inherits Dynamicweb.Rendering.ViewModelTemplate<Dynamicweb.Frontend.ParagraphViewModel>
+@using Dynamicweb.Ecommerce.ProductCatalog
+
+@*
+    Truvio Buying Assistant paragraph (installed by the Truvio.Commerce.BuyingAssistant app).
+    Renders the request box; the JS talks to /truvio/buying-assistant/ask and renders the
+    proposal live. Safe to customise: the app never overwrites an edited copy of this file.
+*@
+
+@{
+    ProductViewModel product = null;
+    if (Dynamicweb.Context.Current.Items.Contains("ProductDetails"))
+    {
+        product = (ProductViewModel)Dynamicweb.Context.Current.Items["ProductDetails"];
+    }
+
+    string anonymousUsersLimitations = Pageview.AreaSettings.GetRawValueString("AnonymousUsers", "");
+    bool anonymousUser = Pageview.User == null;
+    bool hidePrice = anonymousUsersLimitations.Contains("price") && anonymousUser;
+    bool hideCart = anonymousUsersLimitations.Contains("cart") && anonymousUser;
+    bool isOnListing = Dynamicweb.Context.Current?.Items?.Contains("ProductList") ?? false;
+    bool allowAnonymous = string.Equals(Dynamicweb.Configuration.SystemConfiguration.Instance.GetValue("/Globalsettings/Truvio/BuyingAssistant/AllowAnonymous"), "True", StringComparison.OrdinalIgnoreCase);
+
+    Model.Item.TryGetString("Title", out string title);
+    if (string.IsNullOrWhiteSpace(title)) { title = Translate("Tell us what you need"); }
+    Model.Item.TryGetString("Intro", out string intro);
+    Model.Item.TryGetString("Placeholder", out string placeholder);
+    Model.Item.TryGetString("ButtonLabel", out string buttonLabel);
+    if (string.IsNullOrWhiteSpace(buttonLabel)) { buttonLabel = Translate("Build my list"); }
+    Model.Item.TryGetString("AddAllLabel", out string addAllLabel);
+    if (string.IsNullOrWhiteSpace(addAllLabel)) { addAllLabel = Translate("Add all to cart"); }
+    Model.Item.TryGetString("ExamplePrompts", out string examplesRaw);
+    Model.Item.TryGetString("Mode", out string mode);
+    mode = (mode ?? "auto").Trim().ToLowerInvariant();
+    Model.Item.TryGetString("AnonymousMessage", out string anonymousMessage);
+    var examples = (examplesRaw ?? "").Split(new[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+        .Select(e => e.Trim()).Where(e => e.Length > 0).Take(4).ToList();
+
+    bool productMode = mode != "standalone" && product != null && !isOnListing;
+    string widgetId = "TruvioBuyingAssistant_" + Model.ID;
+
+    int cartServicePageId = 0;
+    try { cartServicePageId = GetPageIdByNavigationTag("CartService"); } catch { }
+    string cartServiceUrl = cartServicePageId > 0 ? "/Default.aspx?ID=" + cartServicePageId + "&LayoutTemplate=Swift-v2_MiniCart.cshtml" : "";
+    int cartPageId = 0;
+    try { cartPageId = GetPageIdByNavigationTag("CartPage"); } catch { }
+    string cartPageUrl = cartPageId > 0 ? "/Default.aspx?ID=" + cartPageId : "";
+
+    string version = typeof(Dynamicweb.Content.Paragraph).Assembly.GetName().Version?.ToString() ?? "1";
+    string assetVersion = "20260902-1";
+    bool showWidget = !hidePrice && (!anonymousUser || allowAnonymous) && !(mode == "product" && product == null);
+}
+
+@if (showWidget)
+{
+    <section class="item_@Model.Item.SystemName.ToLower() tba tba--@(productMode ? "product" : "standalone")"
+             id="@widgetId"
+             data-tba
+             data-tba-endpoint="/truvio/buying-assistant/ask"
+             data-tba-page="@Pageview.ID"
+             data-tba-paragraph="@Model.ID"
+             data-tba-product="@(productMode ? product.Id : "")"
+             data-tba-variant="@(productMode ? product.VariantId : "")"
+             data-tba-product-name="@(productMode ? product.Name : "")"
+             data-tba-cart-service="@cartServiceUrl"
+             data-tba-cart-page="@cartPageUrl"
+             data-tba-hide-cart="@(hideCart ? "true" : "false")"
+             data-tba-add-all-label="@addAllLabel"
+             data-tba-labels='{"working":"@Translate("Working on it")","error":"@Translate("The assistant is unavailable right now. Try again in a moment.")","adding":"@Translate("Adding {0} of {1}")","added":"@Translate("Added {0} lines to your cart")","viewCart":"@Translate("View cart")","item":"@Translate("Item")","qty":"@Translate("Qty")","unitPrice":"@Translate("Unit price")","lineTotal":"@Translate("Line total")","stock":"@Translate("Stock")","assumptions":"@Translate("Assumptions")","estimated":"@Translate("Estimated total")","refine":"@Translate("Refine or ask a follow-up")","send":"@Translate("Send")","reset":"@Translate("Start over")","foot":"@Translate("Priced at your account prices. Estimate only, verify quantities before ordering.")"}'
+             data-dw-colorscheme="@Model.ColorScheme?.Id">
+        <div class="tba__head">
+            <span class="tba__eyebrow">@Translate("Buying assistant")</span>
+            <h2 class="tba__title h3">@title</h2>
+            @if (!string.IsNullOrWhiteSpace(intro))
+            {
+                <p class="tba__intro">@intro</p>
+            }
+        </div>
+
+        <form class="tba__form" method="post" data-tba-form>
+            <label class="tba__label" for="@(widgetId)_prompt">@Translate("Describe what you need")</label>
+            <textarea class="form-control tba__input" id="@(widgetId)_prompt" name="TruvioAssistantPrompt" rows="3" maxlength="4000" placeholder="@placeholder" required></textarea>
+            @if (examples.Count > 0)
+            {
+                <div class="tba__examples">
+                    <span>@Translate("Try:")</span>
+                    @foreach (var ex in examples)
+                    {
+                        <button type="button" class="tba__example" data-tba-example="@ex">@ex</button>
+                    }
+                </div>
+            }
+            <div class="tba__actions">
+                <button type="submit" class="btn btn-primary tba__submit" data-tba-submit>@buttonLabel</button>
+                <span class="tba__status" data-tba-status aria-live="polite"></span>
+            </div>
+        </form>
+
+        <div class="tba__activity" data-tba-activity hidden></div>
+        <div class="tba__result" data-tba-result hidden></div>
+
+        <link rel="stylesheet" href="/truvio/buying-assistant/assets/buying-assistant.css?v=@assetVersion">
+        <script defer src="/truvio/buying-assistant/assets/buying-assistant.js?v=@assetVersion"></script>
+    </section>
+}
+else if (Pageview.IsVisualEditorMode)
+{
+    <div class="alert alert-light"><strong>Buying assistant</strong><span class="d-block small text-muted">Renders for signed-in users (or everyone when anonymous use is enabled in Settings, Apps, Buying Assistant). Mode: @mode.</span></div>
+}
+else if (anonymousUser && !allowAnonymous && !string.IsNullOrWhiteSpace(anonymousMessage) && !isOnListing)
+{
+    <section class="item_@Model.Item.SystemName.ToLower() tba tba--locked" id="@widgetId">
+        <div class="tba__head">
+            <span class="tba__eyebrow">@Translate("Buying assistant")</span>
+            <h2 class="tba__title h3">@title</h2>
+            <p class="tba__intro">@anonymousMessage</p>
+        </div>
+        <link rel="stylesheet" href="/truvio/buying-assistant/assets/buying-assistant.css?v=@assetVersion">
+    </section>
+}

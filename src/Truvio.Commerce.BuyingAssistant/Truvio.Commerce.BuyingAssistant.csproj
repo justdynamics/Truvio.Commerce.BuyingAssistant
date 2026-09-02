@@ -1,0 +1,92 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>Truvio.Commerce.BuyingAssistant</RootNamespace>
+    <AssemblyName>Truvio.Commerce.BuyingAssistant</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- Copies Anthropic.dll next to the app DLL so a manual/hosted deploy can ship it. -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+
+    <!-- NuGet / Dynamicweb App Store metadata -->
+    <PackageId>Truvio.Commerce.BuyingAssistant</PackageId>
+    <Version>0.1.0-beta</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <Title>Truvio Buying Assistant</Title>
+    <Description>Truvio Buying Assistant: an AI buying assistant for Dynamicweb 10 storefronts, by JustDynamics.
+
+A shopper describes what they need in plain language ("everything to open a 20,000 gallon pool", "1,800 sq ft gable roof, full tear-off", "replacement union set for a 1 HP pump", "same as my last order but for 32 squares"). The assistant searches the live catalog, sizes the job with your own rules, prices every line at that customer's prices with quantity breaks, checks stock per location and returns a cart-ready proposal with a live activity feed, the reasoning per line, and one "Add all to cart" button. Follow-up questions refine the same proposal. Everything the model proposes is re-priced by the platform before it reaches the cart.
+
+SET UP WITH DYNAMO (recommended)
+After installing and restarting, open Dynamo (the backend AI assistant) and type:
+
+    /truvio-buying-assistant-setup
+
+or simply "Set up the buying assistant for this site". The app ships a Dynamo skill that checks the installation, reads your catalog, drafts the business instructions and skills for your products, places the assistant on the product details page and on an "Ask" landing page, walks you through the one manual step (the Anthropic API key, unless Dynamo's own key can be reused) and verifies a first storefront run with you.
+
+WHAT IS IN THE BOX
+- "Buying Assistant" paragraph (item type Truvio_BuyingAssistant) with editor fields for copy, example prompts, mode (product page or standalone), business instructions and skills ("## Skill: ..." sections that say when they apply and how to size that kind of request).
+- Built-in tools that run inside the host: catalog search, product detail with specs and variants, price at quantity (price providers, customer agreements and quantity breaks apply), stock per stock location, categories, the shopper's account and cart, recent orders for reorders.
+- Optional MCP connection (Direct from the host, or Anthropic's connector) with a tool allowlist and a write guard, so the assistant can use backend tools such as documentation search.
+- Settings screen under Settings > Apps > Buying Assistant: API key, model (claude-opus-5 by default), effort, global instructions and skills, search query, MCP, limits, anonymous access, logging.
+- Swift 2 paragraph layout, JS and CSS served by the app; a status file Dynamo can read to verify the configuration and the last run.
+
+Requires Dynamicweb 10.27 or newer and a restart after installation. Uses the Anthropic API (a key is required; the Dynamo key is reused when present). Source and documentation: https://github.com/justdynamics/Truvio.Commerce.BuyingAssistant</Description>
+    <Authors>JustDynamics</Authors>
+    <Company>JustDynamics</Company>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/justdynamics/Truvio.Commerce.BuyingAssistant</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/justdynamics/Truvio.Commerce.BuyingAssistant</RepositoryUrl>
+    <!-- "dynamicweb-app-store" + "Addin" + "dw10" are required by the DW10 admin App Store search. -->
+    <PackageTags>dynamicweb-app-store Addin dw10 dynamicweb-requires-restart commerce ai assistant claude anthropic mcp buying-assistant truvio justdynamics dynamicweb</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <IncludeContentInPack>true</IncludeContentInPack>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <!-- Overridable per host: dotnet build -p:DynamicwebVersion=10.29.1-PreRelease -->
+    <DynamicwebVersion Condition="'$(DynamicwebVersion)' == ''">10.27.9</DynamicwebVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="\" />
+    <!-- Files/ entries in the nupkg are extracted into the host's Files/ folder by the DW App Store. -->
+    <None Include="Frontend\Assets\ItemType_Truvio_BuyingAssistant.xml" Pack="true" PackagePath="Files\System\Items\ItemType_Truvio_BuyingAssistant.xml" />
+    <None Include="Frontend\Assets\Truvio_BuyingAssistant.cshtml" Pack="true" PackagePath="Files\Templates\Designs\Swift-v2\Paragraph\Truvio_BuyingAssistant\Truvio_BuyingAssistant.cshtml" />
+    <None Include="Frontend\Assets\truvio-buying-assistant-setup.md" Pack="true" PackagePath="Files\Dynamo\Skills\truvio-buying-assistant-setup.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Frontend\Assets\ItemType_Truvio_BuyingAssistant.xml" LogicalName="Assets.ItemType_Truvio_BuyingAssistant.xml" />
+    <EmbeddedResource Include="Frontend\Assets\Truvio_BuyingAssistant.cshtml" LogicalName="Assets.Truvio_BuyingAssistant.cshtml" />
+    <EmbeddedResource Include="Frontend\Assets\buying-assistant.js" LogicalName="Assets.buying-assistant.js" />
+    <EmbeddedResource Include="Frontend\Assets\buying-assistant.css" LogicalName="Assets.buying-assistant.css" />
+    <EmbeddedResource Include="Frontend\Assets\truvio-buying-assistant-setup.md" LogicalName="Assets.truvio-buying-assistant-setup.md" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Truvio.Commerce.BuyingAssistant.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Dynamicweb" Version="$(DynamicwebVersion)" />
+    <PackageReference Include="Dynamicweb.Core" Version="$(DynamicwebVersion)" />
+    <PackageReference Include="Dynamicweb.Ecommerce" Version="$(DynamicwebVersion)" />
+    <PackageReference Include="Dynamicweb.Host.Core" Version="$(DynamicwebVersion)" />
+    <PackageReference Include="Dynamicweb.Application.UI" Version="$(DynamicwebVersion)" />
+    <PackageReference Include="Dynamicweb.Apps.UI" Version="$(DynamicwebVersion)" />
+    <PackageReference Include="Anthropic" Version="12.9.0" />
+  </ItemGroup>
+
+</Project>

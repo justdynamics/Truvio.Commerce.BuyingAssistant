@@ -1,0 +1,53 @@
+name: Publish to NuGet.org
+
+# Publishes via NuGet Trusted Publishing (OIDC); no long-lived API key stored in the repo.
+# https://learn.microsoft.com/en-us/nuget/nuget-org/trusted-publishing
+#
+# One-time setup on nuget.org (profile > Trusted Publishing > Create):
+#   Repository owner: justdynamics
+#   Repository:       Truvio.Commerce.BuyingAssistant
+#   Workflow file:    publish.yml
+#   Environment:      production
+# and a repository secret NUGET_USER holding the nuget.org profile name that created the policy.
+#
+# Release flow: bump <Version> in the csproj, then push a matching tag (e.g. v0.1.0-beta).
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+env:
+  # The Dynamicweb version the package binds to. Every 10.27+ host qualifies.
+  DW_FLOOR: 10.27.9
+
+jobs:
+  publish:
+    runs-on: windows-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Test
+        run: dotnet test tests/Truvio.Commerce.BuyingAssistant.Tests --configuration Release -p:DynamicwebVersion=${{ env.DW_FLOOR }}
+
+      - name: Pack
+        run: dotnet pack src/Truvio.Commerce.BuyingAssistant/Truvio.Commerce.BuyingAssistant.csproj --configuration Release -p:DynamicwebVersion=${{ env.DW_FLOOR }} --output artifacts
+
+      - name: NuGet login (trusted publishing)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push
+        run: dotnet nuget push artifacts\*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

@@ -1,0 +1,57 @@
+/* Truvio Buying Assistant. Neutral styling on Bootstrap variables so it inherits the shop's theme.
+   Override any --tba-* variable in your own stylesheet to re-skin. */
+.tba{--tba-accent:var(--bs-primary,#0d6efd);--tba-line:var(--bs-border-color,#e5e7eb);--tba-bg:var(--bs-tertiary-bg,#f8f9fa);--tba-muted:var(--bs-secondary-color,#6b7280);--tba-text:var(--bs-body-color,#212529);--tba-ok:#2e9d33;--tba-warn:#b45309;margin:1.5rem 0 0;padding:1.25rem 1.25rem 1rem;border:1px solid var(--tba-line);border-left:4px solid var(--tba-accent);background:var(--tba-bg);border-radius:6px;color:var(--tba-text)}
+.tba__eyebrow{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--tba-accent)}
+.tba__title{margin:.15rem 0 .4rem;line-height:1.1}
+.tba__intro{margin:0 0 .75rem;color:var(--tba-muted);font-size:.95rem}
+.tba__label{display:block;font-size:.8rem;font-weight:600;color:var(--tba-muted);margin-bottom:.25rem}
+.tba__input{width:100%;resize:vertical;min-height:4.5rem}
+.tba__examples{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.5rem 0 .75rem;font-size:.8rem;color:var(--tba-muted)}
+.tba__example{border:1px solid var(--tba-line);background:#fff;border-radius:999px;padding:.2rem .65rem;font-size:.78rem;color:var(--tba-text);cursor:pointer}
+.tba__example:hover{border-color:var(--tba-accent)}
+.tba__actions{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.tba__status{font-size:.85rem;color:var(--tba-muted)}
+.tba.is-busy [data-tba-status]::before{content:"";display:inline-block;width:.8rem;height:.8rem;margin-right:.4rem;border:2px solid var(--tba-accent);border-right-color:transparent;border-radius:50%;vertical-align:-.1rem;animation:tba-spin .8s linear infinite}
+@keyframes tba-spin{to{transform:rotate(360deg)}}
+.tba__activity{margin-top:.9rem;padding:.6rem .8rem;border:1px dashed var(--tba-line);border-radius:6px;background:#fff;max-height:11rem;overflow:auto;font-size:.82rem}
+.tba__activity.is-done{max-height:5.5rem;opacity:.8}
+.tba__act{display:flex;gap:.5rem;align-items:flex-start;padding:.15rem 0;color:var(--tba-text)}
+.tba__act.is-past{color:var(--tba-muted)}
+.tba__act-dot{flex:0 0 .5rem;width:.5rem;height:.5rem;margin-top:.4rem;border-radius:50%;background:var(--tba-accent)}
+.tba__act--result .tba__act-dot{background:var(--tba-ok)}
+.tba__act--status .tba__act-dot{background:var(--tba-muted)}
+.tba__act--text{font-style:italic}
+.tba__result{margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--tba-line)}
+.tba__error{padding:.6rem .75rem;background:#fdecec;color:#a8141e;border-radius:4px;font-size:.9rem}
+.tba__question{padding:.6rem .75rem;background:#fff;border:1px solid var(--tba-line);border-left:3px solid var(--tba-accent);border-radius:4px;margin-bottom:.75rem}
+.tba__question-text{margin:0;font-size:.95rem}
+.tba__summary-text{margin:0 0 .5rem;font-size:.95rem}
+.tba__assumptions{font-size:.85rem;color:var(--tba-muted);margin-bottom:.75rem}
+.tba__assumptions summary{cursor:pointer;font-weight:600}
+.tba__assumptions ul{margin:.35rem 0 0 1rem;padding:0}
+.tba__table-wrap{overflow-x:auto}
+.tba__table{background:#fff;border:1px solid var(--tba-line);font-size:.9rem;margin-bottom:.5rem}
+.tba__table th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--tba-muted);font-weight:700;border-bottom:1px solid var(--tba-line)}
+.tba__table td{vertical-align:top}
+.tba__line.is-context{background:#eef6ff}
+.tba__line.is-added .tba__line-name::after{content:" \2713";color:var(--tba-ok)}
+.tba__line-name{font-weight:600}
+.tba__line-meta{font-size:.78rem;color:var(--tba-muted);display:flex;flex-wrap:wrap;gap:.5rem}
+.tba__sku{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.02em}
+.tba__qty{white-space:nowrap;font-weight:600}
+.tba__unit{font-size:.75rem;color:var(--tba-muted);font-weight:400}
+.tba__tier{display:block;font-size:.7rem;color:var(--tba-accent);font-weight:600}
+.tba__total{white-space:nowrap;font-weight:600}
+.tba__grand{font-weight:700;font-size:1.05rem}
+.tba__stock{font-size:.78rem;white-space:nowrap}
+.tba__stock-dot{display:inline-block;width:.5rem;height:.5rem;border-radius:50%;margin-right:.3rem;background:var(--tba-ok);vertical-align:.05rem}
+.tba__stock.is-short .tba__stock-dot{background:var(--tba-warn)}
+.tba__notes{font-size:.85rem;color:var(--tba-muted);margin:.5rem 0}
+.tba__addall{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin:.75rem 0 .5rem}
+.tba__foot{font-size:.75rem;color:var(--tba-muted);margin:0 0 .75rem}
+.tba__follow{margin-top:.75rem;padding-top:.75rem;border-top:1px solid var(--tba-line)}
+.tba__follow-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.tba__follow-input{flex:1 1 16rem}
+.tba__reset{font-size:.85rem}
+.tba--locked .tba__intro{margin-bottom:0}
+@media (max-width:767px){.tba{padding:1rem}}

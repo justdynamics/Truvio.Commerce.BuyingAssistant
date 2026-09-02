@@ -1,0 +1,26 @@
+name: Build and test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  DW_FLOOR: 10.27.9
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Test
+        run: dotnet test tests/Truvio.Commerce.BuyingAssistant.Tests --configuration Release -p:DynamicwebVersion=${{ env.DW_FLOOR }}
+      - name: Pack
+        run: dotnet pack src/Truvio.Commerce.BuyingAssistant/Truvio.Commerce.BuyingAssistant.csproj --configuration Release -p:DynamicwebVersion=${{ env.DW_FLOOR }} --output artifacts
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nupkg
+          path: artifacts/*.nupkg

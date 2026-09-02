@@ -1,0 +1,10 @@
+bin/
+obj/
+*.user
+.vs/
+TestResults/
+.claude/
+# Packages are distributed through nuget.org, not the repository.
+*.nupkg
+# Screenshots were taken on real prospect installs and must never reach the public repo.
+docs/*.png

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-16" standalone="yes"?>
+<items>
+  <item category="Truvio/Paragraphs" name="Buying Assistant" systemName="Truvio_BuyingAssistant" description="AI buying assistant: a plain-language request becomes a priced, cart-ready proposal from the live catalog" icon="None" iconColor="None" image="" includeInUrlIndex="False" pageDefaultView="item" paragraphDefaultModule="" fieldForTitle="Title" title="" inherits="">
+    <fields>
+      <field name="Title" systemName="Title" description="Heading above the assistant" type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="Tell us what you need">
+        <editor type="Dynamicweb.Content.Items.Editors.TextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.TextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Intro" systemName="Intro" description="One line under the heading" type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="Describe the job in your own words. The assistant builds the full list from our catalog, at your prices, with stock at your location.">
+        <editor type="Dynamicweb.Content.Items.Editors.TextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.TextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Placeholder" systemName="Placeholder" description="Placeholder inside the request box" type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="e.g. everything I need to open a 20,000 gallon pool this spring">
+        <editor type="Dynamicweb.Content.Items.Editors.TextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.TextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Button label" systemName="ButtonLabel" description="Submit button text" type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="Build my list">
+        <editor type="Dynamicweb.Content.Items.Editors.TextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.TextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Example prompts" systemName="ExamplePrompts" description="Clickable example requests, one per line (max 4 shown)" type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="">
+        <editor type="Dynamicweb.Content.Items.Editors.LongTextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.LongTextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Add all label" systemName="AddAllLabel" description="Label of the add-everything button" type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="Add all to cart">
+        <editor type="Dynamicweb.Content.Items.Editors.TextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.TextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Mode" systemName="Mode" description="auto (product context when placed on a product page), product, or standalone" type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="auto">
+        <editor type="Dynamicweb.Content.Items.Editors.TextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.TextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Skills" systemName="Skills" description="Limit this placement to these skills (comma separated skill names from the app settings). Blank = all skills." type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="">
+        <editor type="Dynamicweb.Content.Items.Editors.TextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.TextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Instructions" systemName="Instructions" description="Business instructions for this placement: who the shop is, who buys, how to size jobs, house rules. Added to the instructions from the app settings." type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="">
+        <editor type="Dynamicweb.Content.Items.Editors.LongTextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.LongTextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Skills text" systemName="SkillsText" description="Skills for this placement: sections that start with a line '## Skill: Name', each saying when it applies and how to size that kind of request. Added to the skills from the app settings." type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="">
+        <editor type="Dynamicweb.Content.Items.Editors.LongTextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.LongTextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+      <field name="Anonymous message" systemName="AnonymousMessage" description="Shown instead of the assistant to visitors who are not signed in (when anonymous use is off in the app settings). Blank hides the paragraph." type="System.String, System.Private.CoreLib" excludeFromSearch="False" defaultValueCulture="en-US" defaultValue="Sign in to use the buying assistant at your prices.">
+        <editor type="Dynamicweb.Content.Items.Editors.TextEditor, Dynamicweb">
+          <editorConfuguration><Parameters addin="Dynamicweb.Content.Items.Editors.TextEditor" /></editorConfuguration>
+        </editor>
+      </field>
+    </fields>
+    <rules>
+      <rule name="Allow in websites" type="Dynamicweb.Content.Items.Activation.AreaRestrictionRule, Dynamicweb" value="*" />
+      <rule name="" type="Dynamicweb.Content.Items.Activation.ChildItemTypeRestrictionRule, Dynamicweb" value="" />
+      <rule name="Allowed children" type="Dynamicweb.Content.Items.Activation.ChildRestrictionRule, Dynamicweb" value="System.Collections.Generic.HashSet`1[System.String]" />
+      <rule name="Allowed parents" type="Dynamicweb.Content.Items.Activation.ParentItemTypeRestrictionRule, Dynamicweb" value="" />
+      <rule name="Allowed parent types" type="Dynamicweb.Content.Items.Activation.ParentRestrictionRule, Dynamicweb" value="" />
+      <rule name="Allow in tree sections" type="Dynamicweb.Content.Items.Activation.SectionRestrictionRule, Dynamicweb" value="" />
+      <rule name="" type="Dynamicweb.Content.Items.Activation.ColorSchemeRestrictionRule, Dynamicweb" value="true" />
+      <rule name="Enable item type for" type="Dynamicweb.Content.Items.Activation.StructureRestrictionRule, Dynamicweb" value="Paragraphs" />
+    </rules>
+    <layout>
+      <groups>
+        <group name="Content" systemName="Content" sectionName="" collapsibleState="None" visibilityField="" visibilityCondition="" visibilityConditionValueType="" visibilityConditionValue="">
+          <fields>
+            <field systemName="Title" />
+            <field systemName="Intro" />
+            <field systemName="Placeholder" />
+            <field systemName="ButtonLabel" />
+            <field systemName="ExamplePrompts" />
+            <field systemName="AddAllLabel" />
+            <field systemName="AnonymousMessage" />
+          </fields>
+        </group>
+        <group name="Assistant" systemName="Assistant" sectionName="" collapsibleState="None" visibilityField="" visibilityCondition="" visibilityConditionValueType="" visibilityConditionValue="">
+          <fields>
+            <field systemName="Mode" />
+            <field systemName="Skills" />
+            <field systemName="Instructions" />
+            <field systemName="SkillsText" />
+          </fields>
+        </group>
+      </groups>
+    </layout>
+  </item>
+</items>

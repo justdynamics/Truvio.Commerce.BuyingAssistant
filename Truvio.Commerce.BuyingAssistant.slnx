@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Truvio.Commerce.BuyingAssistant/Truvio.Commerce.BuyingAssistant.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Truvio.Commerce.BuyingAssistant.Tests/Truvio.Commerce.BuyingAssistant.Tests.csproj" />
+  </Folder>
+</Solution>
