@@ -89,4 +89,10 @@ Requires Dynamicweb 10.27 or newer and a restart after installation. Uses the An
     <PackageReference Include="Anthropic" Version="12.9.0" />
   </ItemGroup>
 
+  <!-- Self-contained variant for a LOCAL App Store install (Files/System/AddIns/Local), which does not
+       resolve NuGet dependencies: dotnet pack -p:BundleAnthropic=true. The nuget.org package must NOT bundle it. -->
+  <ItemGroup Condition="'$(BundleAnthropic)' == 'true'">
+    <None Include="$(NuGetPackageRoot)anthropic/12.9.0/lib/net8.0/Anthropic.dll" Pack="true" PackagePath="lib/net8.0/Anthropic.dll" />
+  </ItemGroup>
+
 </Project>
