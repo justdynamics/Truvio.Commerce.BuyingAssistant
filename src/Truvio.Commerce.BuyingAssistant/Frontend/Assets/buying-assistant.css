@@ -9,7 +9,7 @@
 .tba__examples{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;margin:.5rem 0 .75rem;font-size:.8rem;color:var(--tba-muted)}
 .tba__example{border:1px solid var(--tba-line);background:#fff;border-radius:999px;padding:.2rem .65rem;font-size:.78rem;color:var(--tba-text);cursor:pointer}
 .tba__example:hover{border-color:var(--tba-accent)}
-.tba__actions{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap}
+.tba__actions{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;margin-top:.75rem}
 .tba__status{font-size:.85rem;color:var(--tba-muted)}
 .tba.is-busy [data-tba-status]::before{content:"";display:inline-block;width:.8rem;height:.8rem;margin-right:.4rem;border:2px solid var(--tba-accent);border-right-color:transparent;border-radius:50%;vertical-align:-.1rem;animation:tba-spin .8s linear infinite}
 @keyframes tba-spin{to{transform:rotate(360deg)}}

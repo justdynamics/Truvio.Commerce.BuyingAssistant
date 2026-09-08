@@ -12,3 +12,5 @@ docs/*.png
 *.mp4
 *.webm
 artifacts/*.png
+# Unpacked nupkg used to inspect a build. Output, not source; regenerated on demand.
+artifacts/extracted/
