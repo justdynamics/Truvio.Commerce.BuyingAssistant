@@ -7,9 +7,9 @@ Pick one:
 1. **App Store**: DW10 admin, Apps, Appstore, Available apps, search "Buying Assistant", install, then restart the host (the app registers HTTP endpoints at startup).
 2. **Package reference**: in `Dynamicweb.Host.Suite.csproj`:
    ```xml
-   <PackageReference Include="Truvio.Commerce.BuyingAssistant" Version="0.1.0-beta" />
+   <PackageReference Include="Truvio.Commerce.BuyingAssistant" Version="0.2.0-beta" />
    ```
-3. **Manual (development or hosted upload)**: build, copy `Truvio.Commerce.BuyingAssistant.dll` and `Anthropic.dll` into the host's bin output folder (or, on a hosted install, into `Files/System/AddIns/Installed/Truvio.Commerce.BuyingAssistant.0.1.0-beta/lib/net8.0/`), restart the host. `scripts/deploy-local.ps1 -HostProject <path> -Restart` does this for a local host.
+3. **Manual (development or hosted upload)**: build, copy `Truvio.Commerce.BuyingAssistant.dll` and `Anthropic.dll` into the host's bin output folder (or, on a hosted install, into `Files/System/AddIns/Installed/Truvio.Commerce.BuyingAssistant.0.2.0-beta/lib/net8.0/`), restart the host. `scripts/deploy-local.ps1 -HostProject <path> -Restart` does this for a local host.
 
 On first start the app writes two files into `Files/` and refreshes the item-type metadata:
 

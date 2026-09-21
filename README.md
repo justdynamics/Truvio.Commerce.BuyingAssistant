@@ -6,6 +6,7 @@ A shopper describes what they need in plain language ("everything to open a 20,0
 
 - Package: `Truvio.Commerce.BuyingAssistant` on nuget.org (Dynamicweb App Store: Apps > Appstore > Available apps)
 - Requires Dynamicweb 10.27 or newer, an Anthropic API key (the Dynamo key is reused when present), and a host restart after installation
+- Proven on Dynamicweb release ring R1 (milestone 10.28, .NET 10); installs on 10.27.9 or newer
 - License: MIT
 
 ## Install and set up in three steps
