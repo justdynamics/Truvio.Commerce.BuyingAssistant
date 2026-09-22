@@ -7,7 +7,7 @@ All keys live under `/Globalsettings/Truvio/BuyingAssistant/` in `Files/GlobalSe
 | Setting | Key | Default | Notes |
 |---|---|---|---|
 | Anthropic API key | `ApiKey` | (blank) | Fallbacks: `ANTHROPIC_API_KEY` environment variable, then `/Globalsettings/Dynamo/ApiKey` |
-| Model | `Model` | `claude-opus-5` | Any current Claude model id |
+| Model | `Model` | `claude-opus-5-5` | Any current Claude model id |
 | Effort | `Effort` | `medium` | low, medium, high, max (xhigh maps to high on this SDK) |
 | Assistant name | `AssistantName` | `Buying Assistant` | How it refers to itself |
 | Business instructions | `Instructions` | (blank) | Free text |
