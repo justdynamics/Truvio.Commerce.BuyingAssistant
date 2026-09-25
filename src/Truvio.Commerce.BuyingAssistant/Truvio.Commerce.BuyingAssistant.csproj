@@ -14,8 +14,8 @@
 
     <!-- NuGet / Dynamicweb App Store metadata -->
     <PackageId>Truvio.Commerce.BuyingAssistant</PackageId>
-    <Version>0.2.0-beta</Version>
-    <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <Version>0.2.1-beta</Version>
+    <AssemblyVersion>0.2.1.0</AssemblyVersion>
     <Title>Truvio Buying Assistant</Title>
     <Description>Truvio Buying Assistant: an AI buying assistant for Dynamicweb 10 storefronts, by JustDynamics.
 

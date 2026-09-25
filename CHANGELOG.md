@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1-beta (2026-09-25)
+
+- Default model is `claude-opus-5-5` (settings default, docs, the Dynamo setup skill and the App Store description). A Model value already saved in the settings is kept.
+- Upgrade docs: `docs/publishing.md` documents removing old `Truvio.Commerce.BuyingAssistant.*` version folders under `Files/System/AddIns/Installed/` before placing a new version, which avoids the duplicate AddIn key crash at startup (#1).
+- The Dynamicweb version floor has one source, the csproj `DynamicwebVersion`; the docs and the publish workflow read it from there.
+- Getting-started install lines use a version-neutral placeholder instead of a pinned version.
+
 ## 0.2.0-beta (2026-09-02)
 
 - Proposal lines are editable: change a quantity or remove a line (restore it again) before adding to the cart. Every edit is re-priced by the platform (customer prices, quantity breaks, stock at the new quantity) through the new `POST /truvio/buying-assistant/reprice` endpoint; the total and the "Add all to cart" count follow.
