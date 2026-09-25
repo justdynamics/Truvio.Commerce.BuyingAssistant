@@ -33,7 +33,7 @@ Remove every `Truvio.Commerce.BuyingAssistant.*` folder under `Files/System/AddI
 | "Buying Assistant" paragraph (item type `Truvio_BuyingAssistant`): copy, example prompts, mode (product page or standalone), business instructions, skills | Visual Editor, category Truvio |
 | Built-in tools that run inside the host: catalog search, product detail with specs and variants, price at quantity, stock per stock location, categories, the shopper's account and cart, recent orders | no configuration |
 | Optional MCP connection (Direct from the host, or Anthropic's connector) with a tool allowlist and a write guard | Settings > Apps > Buying Assistant |
-| Settings screen: API key, model (`claude-opus-5` by default), effort, global instructions and skills, search query, MCP, limits, anonymous access, logging | Settings > Apps > Buying Assistant |
+| Settings screen: API key, model (`claude-opus-5-5` by default), effort, global instructions and skills, search query, MCP, limits, anonymous access, logging | Settings > Apps > Buying Assistant |
 | Dynamo setup skill and a status file Dynamo can read | `Files/Dynamo/Skills/`, `Files/Templates/Truvio/BuyingAssistant/status.json` |
 | Storefront endpoint (server-sent events) and assets | `/truvio/buying-assistant/ask`, `/truvio/buying-assistant/assets/` |
 

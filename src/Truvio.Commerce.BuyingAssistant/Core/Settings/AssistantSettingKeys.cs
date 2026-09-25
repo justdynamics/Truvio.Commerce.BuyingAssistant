@@ -44,7 +44,7 @@ public static class AssistantSettingKeys
 
     public static class Defaults
     {
-        public const string Model = "claude-opus-5";
+        public const string Model = "claude-opus-5-5";
         public const string Effort = "medium";
         public const string AssistantName = "Buying Assistant";
         public const string SearchRepository = "Products";

@@ -31,7 +31,7 @@ storefront paragraph (Razor, Swift 2)  --POST JSON-->  /truvio/buying-assistant/
 
 ## Model settings
 
-Default `claude-opus-5`, adaptive thinking (the API default on Opus 5), effort from the settings, `tool_choice` auto with an explicit instruction to finish with `submit_proposal` (forced tool choice is not used so the same code runs on Claude Fable 5.1). Stop reasons `refusal`, `max_tokens` and the step cap turn into shopper-readable errors.
+Default `claude-opus-5-5`, adaptive thinking (the API default on Opus 5.5), effort from the settings, `tool_choice` auto with an explicit instruction to finish with `submit_proposal` (forced tool choice is not used so the same code runs on Claude Fable 5.1). Stop reasons `refusal`, `max_tokens` and the step cap turn into shopper-readable errors.
 
 ## Admin
 

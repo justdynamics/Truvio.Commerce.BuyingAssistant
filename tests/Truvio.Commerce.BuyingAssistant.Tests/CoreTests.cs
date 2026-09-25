@@ -96,7 +96,7 @@ public class SettingsTests
         };
         var s = AssistantSettings.FromReader(k => values.TryGetValue(k, out var v) ? v : null);
         Assert.Equal("sk-dynamo", s.ApiKey);
-        Assert.Equal("claude-opus-5", s.Model);
+        Assert.Equal("claude-opus-5-5", s.Model);
         Assert.Equal("high", s.Effort);
         Assert.Equal(McpMode.Direct, s.McpMode);
         Assert.True(s.McpConfigured);

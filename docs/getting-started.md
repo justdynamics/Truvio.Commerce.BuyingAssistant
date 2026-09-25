@@ -39,7 +39,7 @@ Manual configuration works the same way without Dynamo:
 
 DW10 admin, **Settings, Apps, Buying Assistant**:
 
-1. **Assistant tab**: paste the Anthropic API key (or set the `ANTHROPIC_API_KEY` environment variable on the host; the Dynamo assistant key is used as a last fallback). Keep the model at `claude-opus-5` and effort at `medium` unless you have a reason to change them.
+1. **Assistant tab**: paste the Anthropic API key (or set the `ANTHROPIC_API_KEY` environment variable on the host; the Dynamo assistant key is used as a last fallback). Keep the model at `claude-opus-5-5` and effort at `medium` unless you have a reason to change them.
 2. **Instructions and skills tab**: describe the business and how to size jobs. See `docs/skills.md`.
 3. **Catalog and MCP tools tab**: the search query defaults to Swift's `Products/Products.query` with parameter `q`. Optionally connect the Dynamicweb Backend MCP (see `docs/mcp.md`).
 4. Save. Settings are live immediately; no restart.

@@ -18,7 +18,7 @@ public sealed class BuyingAssistantSettingsModel : SettingsViewModelBase
     [Settings(Keys.ApiKey)]
     public string ApiKey { get; set; } = string.Empty;
 
-    [ConfigurableProperty("Model", "Claude model id, e.g. claude-opus-5 (default) or claude-sonnet-5.")]
+    [ConfigurableProperty("Model", "Claude model id, e.g. claude-opus-5-5 (default) or claude-sonnet-5.")]
     [Settings(Keys.Model, Defaults.Model)]
     public string Model { get; set; } = Defaults.Model;
 
