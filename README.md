@@ -22,6 +22,10 @@ A shopper describes what they need in plain language ("everything to open a 20,0
 
 Without Dynamo, the same setup takes ten minutes by hand: [docs/getting-started.md](docs/getting-started.md).
 
+## Upgrading
+
+Remove every `Truvio.Commerce.BuyingAssistant.*` folder under `Files/System/AddIns/Installed/` before placing a new version, keeping `Anthropic.dll` alongside it, then restart once. Leaving an old version folder in place crashes host startup with a duplicate-key error from `AddInManager`. Detail: `docs/publishing.md`.
+
 ## What is in the box
 
 | Piece | Where |
