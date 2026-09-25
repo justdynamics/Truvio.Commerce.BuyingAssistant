@@ -12,7 +12,8 @@
     Path to the host's Dynamicweb.Host.Suite folder (contains the csproj and bin\).
 
 .PARAMETER DynamicwebVersion
-    Dynamicweb package version to compile against (must match the host, e.g. 10.27.9).
+    Dynamicweb package version to compile against (must match the host). Defaults to the
+    csproj's own DynamicwebVersion floor.
 
 .PARAMETER Restart
     Stop the running host (dotnet process serving it) and start it again detached.
@@ -20,7 +21,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)] [string]$HostProject,
-    [string]$DynamicwebVersion = "10.27.9",
+    [string]$DynamicwebVersion,
     [string]$Configuration = "Debug",
     [switch]$Restart,
     [string]$LaunchProfile = "Dynamicweb.Host.Suite"
@@ -30,6 +31,11 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 $proj = Join-Path $root "src\Truvio.Commerce.BuyingAssistant\Truvio.Commerce.BuyingAssistant.csproj"
 $out = Join-Path $root "src\Truvio.Commerce.BuyingAssistant\bin\$Configuration\net8.0"
+
+if (-not $DynamicwebVersion) {
+    $DynamicwebVersion = (dotnet msbuild $proj -nologo -getProperty:DynamicwebVersion).Trim()
+    Write-Host "[deploy] no -DynamicwebVersion given, using the csproj floor: $DynamicwebVersion" -ForegroundColor Cyan
+}
 
 Write-Host "[deploy] building against Dynamicweb $DynamicwebVersion" -ForegroundColor Cyan
 dotnet build $proj -c $Configuration -p:DynamicwebVersion=$DynamicwebVersion | Out-Host

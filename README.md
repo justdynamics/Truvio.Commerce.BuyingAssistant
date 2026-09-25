@@ -61,4 +61,4 @@ dotnet test tests\Truvio.Commerce.BuyingAssistant.Tests
 dotnet pack src\Truvio.Commerce.BuyingAssistant\Truvio.Commerce.BuyingAssistant.csproj -c Release -p:DynamicwebVersion=10.27.9 --output artifacts
 ```
 
-Always build against the Dynamicweb floor version (`10.27.9`); a DLL compiled against a newer Dynamicweb version loads on older hosts but its types are skipped silently. `scripts\deploy-local.ps1 -HostProject <Dynamicweb.Host.Suite folder> -Restart` drops a development build into a local host.
+Always build against the csproj DynamicwebVersion floor; a DLL compiled against a newer Dynamicweb version loads on older hosts but its types are skipped silently. `scripts\deploy-local.ps1 -HostProject <Dynamicweb.Host.Suite folder> -Restart` drops a development build into a local host.

@@ -4,7 +4,7 @@
 
 The App Store queries nuget.org for packages tagged `dynamicweb-app-store`, `Addin` and `dw10`, and offers the newest version whose Dynamicweb dependency floors are satisfied by the host. The package therefore:
 
-- is built against the floor version (`-p:DynamicwebVersion=10.27.9`), so every 10.27+ host qualifies;
+- is built against the csproj DynamicwebVersion floor, so every 10.27+ host qualifies;
 - carries the item type, the Swift 2 layout and the Dynamo skill under `Files/` in the nupkg (extracted into the host's `Files/` on install) and as embedded resources (installed at startup for every other install path);
 - lists `Anthropic` as a dependency, which the App Store resolves into the app folder.
 
