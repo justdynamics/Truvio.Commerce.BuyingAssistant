@@ -32,7 +32,7 @@ WHAT IS IN THE BOX
 - "Buying Assistant" paragraph (item type Truvio_BuyingAssistant) with editor fields for copy, example prompts, mode (product page or standalone), business instructions and skills ("## Skill: ..." sections that say when they apply and how to size that kind of request).
 - Built-in tools that run inside the host: catalog search, product detail with specs and variants, price at quantity (price providers, customer agreements and quantity breaks apply), stock per stock location, categories, the shopper's account and cart, recent orders for reorders.
 - Optional MCP connection (Direct from the host, or Anthropic's connector) with a tool allowlist and a write guard, so the assistant can use backend tools such as documentation search.
-- Settings screen under Settings > Apps > Buying Assistant: API key, model (claude-opus-5 by default), effort, global instructions and skills, search query, MCP, limits, anonymous access, logging.
+- Settings screen under Settings > Apps > Buying Assistant: API key, model (claude-opus-5-5 by default), effort, global instructions and skills, search query, MCP, limits, anonymous access, logging.
 - Swift 2 paragraph layout, JS and CSS served by the app; a status file Dynamo can read to verify the configuration and the last run.
 
 Requires Dynamicweb 10.27 or newer and a restart after installation. Uses the Anthropic API (a key is required; the Dynamo key is reused when present). Source and documentation: https://github.com/justdynamics/Truvio.Commerce.BuyingAssistant</Description>
