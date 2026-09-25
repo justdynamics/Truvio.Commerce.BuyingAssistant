@@ -22,10 +22,6 @@ on:
       - 'v*'
   workflow_dispatch:
 
-env:
-  # The Dynamicweb version the package binds to. Every 10.27+ host qualifies.
-  DW_FLOOR: 10.27.9
-
 jobs:
   publish:
     runs-on: windows-latest
@@ -59,6 +55,14 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
+
+      # The Dynamicweb version the package binds to. Every 10.27+ host qualifies.
+      - name: Read Dynamicweb floor from csproj
+        shell: pwsh
+        run: |
+          $floor = (dotnet msbuild src/Truvio.Commerce.BuyingAssistant/Truvio.Commerce.BuyingAssistant.csproj -nologo -getProperty:DynamicwebVersion).Trim()
+          Write-Host "Dynamicweb floor read from csproj: $floor"
+          Add-Content -Path $env:GITHUB_ENV -Value "DW_FLOOR=$floor"
 
       - name: Test
         run: dotnet test tests/Truvio.Commerce.BuyingAssistant.Tests --configuration Release -p:DynamicwebVersion=${{ env.DW_FLOOR }}

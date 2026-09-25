@@ -39,7 +39,7 @@ Default `claude-opus-5`, adaptive thinking (the API default on Opus 5), effort f
 
 ## Packaging
 
-NuGet package with tags `dynamicweb-app-store Addin dw10` (App Store discovery), the item type and Swift template under `Files/` in the package (extracted by the App Store) and embedded as resources (installed at startup for every other install path). Built against the Dynamicweb version floor (`-p:DynamicwebVersion=10.27.9`); a newer host loads it, an older host would skip the types silently.
+NuGet package with tags `dynamicweb-app-store Addin dw10` (App Store discovery), the item type and Swift template under `Files/` in the package (extracted by the App Store) and embedded as resources (installed at startup for every other install path). Built against the csproj DynamicwebVersion floor (`-p:DynamicwebVersion=<floor>`); a newer host loads it, an older host would skip the types silently.
 
 ## Source layout
 
