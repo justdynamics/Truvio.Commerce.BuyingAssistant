@@ -33,3 +33,15 @@ Prerelease versions (`0.1.0-beta`) show a BETA flag in the admin.
 - Development: `scripts\deploy-local.ps1 -HostProject <path> -Restart`.
 
 A host that already has `Anthropic.dll` in its own bin (for example from another add-in) must not get a second copy in the app folder: two assemblies with the same simple name break every Razor template.
+
+## Upgrading
+
+`Files/System/AddIns/Installed/` is version-suffixed: each release gets its own `Truvio.Commerce.BuyingAssistant.<version>/` folder, and the platform's `AddInManager.LoadTypeAliases()` scans every folder under `AddIns/Installed` at startup and registers every discovered add-in type into one flat dictionary keyed by type name. It does not deduplicate by version, so leaving an old version folder in place while a new one is added makes the host fail to start on every subsequent request, with `System.ArgumentException: An item with the same key has already been added` from `AddInManager.LoadTypeAliases()`.
+
+Before placing a new version:
+
+1. Remove every `Truvio.Commerce.BuyingAssistant.*` folder under `Files/System/AddIns/Installed/`.
+2. Place the new version folder, keeping `Anthropic.dll` alongside it as described above.
+3. Restart the host once.
+
+This applies to every install path above except the App Store, which replaces the version folder itself.
