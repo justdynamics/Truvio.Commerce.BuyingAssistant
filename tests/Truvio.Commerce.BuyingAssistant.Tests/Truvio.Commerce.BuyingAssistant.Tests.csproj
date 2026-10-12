@@ -8,6 +8,13 @@
     <IsTestProject>true</IsTestProject>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <!-- Follows the app project: -p:DynamicwebVersion=10.29.x (net10.0-only packages) builds both for net10.0. -->
+    <DwMajorMinor>$([System.Text.RegularExpressions.Regex]::Match('$(DynamicwebVersion)', '^\d+\.\d+').Value)</DwMajorMinor>
+    <DwMajorMinor Condition="'$(DwMajorMinor)' == ''">0.0</DwMajorMinor>
+    <TargetFramework Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(DwMajorMinor)', '10.29'))">net10.0</TargetFramework>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="xunit" Version="2.9.2" />

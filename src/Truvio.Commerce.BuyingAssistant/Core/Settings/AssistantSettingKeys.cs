@@ -42,6 +42,16 @@ public static class AssistantSettingKeys
     public const string LogConversations = Root + "LogConversations";
     public const string CartServiceTag = Root + "CartServiceTag";
 
+    // Bill of materials (BOM estimator mode)
+    public const string BomEnabled = Root + "Bom/Enabled";
+    public const string BomInstructions = Root + "Bom/Instructions";
+    public const string BomDescriptiveFields = Root + "Bom/DescriptiveFields";
+    public const string BomPackField = Root + "Bom/PackField";
+    public const string BomUnitField = Root + "Bom/UnitField";
+    public const string BomMaxTokens = Root + "Bom/MaxTokens";
+    public const string BomEffort = Root + "Bom/Effort";
+    public const string BomShortPromptMessage = Root + "Bom/ShortPromptMessage";
+
     public static class Defaults
     {
         public const string Model = "claude-opus-5-5";
@@ -62,6 +72,22 @@ public static class AssistantSettingKeys
         public const bool AllowAnonymous = false;
         public const bool LogConversations = true;
         public const string CartServiceTag = "CartService";
+
+        public const bool BomEnabled = true;
+        public const string BomInstructions =
+            "You are the bill-of-materials estimator for this shop. A customer describes a job in plain language; size the materials it needs.\n" +
+            "- Convert the job's dimensions into the catalog's sellable units using the pack and coverage information listed for each product.\n" +
+            "- Add a sensible waste allowance for the kind of job and state it as an assumption, unless the customer gives one.\n" +
+            "- Include the accessories and consumables the job normally needs when the catalog supplies them, and only what the job actually needs.\n" +
+            "- State every assumption you make where the description is silent.";
+        public const string BomDescriptiveFields =
+            "PackDescription, CoveragePerBundle_SqFt, BundlesPerSq, BundlesPerPallet, Series, Material, ImpactRating, FireRating, Warranty, " +
+            "Coverage, Coverage_SqFt, RValue, Thickness, Width, Length_Ft, Length";
+        public const string BomPackField = "PackDescription";
+        public const string BomUnitField = "PrimaryUoM";
+        public const int BomMaxTokens = 8000;
+        public const string BomEffort = "medium";
+        public const string BomShortPromptMessage = "Describe the job first (roof size, pitch, what needs replacing).";
     }
 
     /// <summary>Keys outside the app's own node that are consulted as fallbacks.</summary>

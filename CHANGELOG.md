@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0-beta (2026-10-12)
+
+- Bill-of-materials mode: `Truvio.Commerce.BuyingAssistant.Bom.BomEstimator.Estimate(BomRequest)` (and a positional overload) turns a job description into a cart-ready bill of materials with one Messages API call (forced tool `submit_estimate`) over the shop's live catalog, synchronously, so a page template can call it during a render. Every line is re-priced through `DwCatalogGateway` and `ProposalPricer` (customer prices, quantity breaks with a "25+ tier" label, stock). `BomEstimator.CatalogKey(productId, variantId)` builds the `id` or `id|variant` key.
+- New settings tab "Bill of materials" (keys under `Bom/`): mode on/off, sizing instructions, short request message, descriptive category fields, pack field, unit-of-measure field, max tokens, effort. Defaults are generic; the model and API key (app key, `ANTHROPIC_API_KEY`, Dynamo key) are shared with the assistant.
+- The catalog read uses a parameterised query for the hidden, inactive and variant flags.
+- `DwCatalogGateway` gains a constructor with an explicit language, currency, country, shop and user.
+- Packaging: `-p:BundleAnthropic=true` now produces a nupkg whose `lib/<tfm>/` holds only the app DLL and `Anthropic.dll` and whose nuspec declares no Anthropic dependency. `-p:DynamicwebVersion=10.29.x` builds for net10.0 (Dynamicweb 10.29 ships net10.0 only).
+
 ## 0.2.1-beta (2026-09-25)
 
 - Default model is `claude-opus-5-5` (settings default, docs, the Dynamo setup skill and the App Store description). A Model value already saved in the settings is kept.

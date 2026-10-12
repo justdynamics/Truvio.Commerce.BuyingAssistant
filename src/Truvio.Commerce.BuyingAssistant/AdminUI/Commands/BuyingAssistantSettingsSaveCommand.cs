@@ -23,6 +23,9 @@ public sealed class BuyingAssistantSettingsSaveCommand : CommandBase<BuyingAssis
         model.Effort = (model.Effort ?? "").Trim().ToLowerInvariant();
         model.Model = (model.Model ?? "").Trim();
         model.McpUrl = (model.McpUrl ?? "").Trim();
+        model.BomEffort = (model.BomEffort ?? "").Trim().ToLowerInvariant();
+        model.BomPackField = (model.BomPackField ?? "").Trim();
+        model.BomUnitField = (model.BomUnitField ?? "").Trim();
         SettingsService.Persist(model);
         Frontend.StatusReporter.Write("settings saved");
         return new CommandResult { Model = model, Status = CommandResult.ResultType.Ok };

@@ -26,6 +26,29 @@ Prerelease versions (`0.1.0-beta`) show a BETA flag in the admin.
    - or through GitHub Actions trusted publishing: `.github/workflows/publish.yml` runs on a `v*` tag, packs at the floor version and pushes with a short-lived key obtained via OIDC. One-time setup on nuget.org: Profile > Trusted Publishing > Create (owner `justdynamics`, repository `Truvio.Commerce.BuyingAssistant`, workflow `publish.yml`, environment `production`), plus a repository secret `NUGET_USER` holding the nuget.org profile name that created the policy.
 4. nuget.org indexes within minutes; the App Store then lists the new version.
 
+## Local-install package (Anthropic bundled)
+
+The Dynamicweb local add-in installer (`Files/System/AddIns/Local`) does not resolve NuGet dependencies the way the App Store does, and when it does try, Anthropic's transitive `Microsoft.*` and `System.*` packages (Microsoft.Extensions.AI.Abstractions 10.2, System.Text.Json 10.0, ...) must never land next to a stock host's own copies. The `BundleAnthropic` switch builds a package for that path:
+
+```powershell
+dotnet pack src\Truvio.Commerce.BuyingAssistant\Truvio.Commerce.BuyingAssistant.csproj -c Release -p:BundleAnthropic=true --output <folder>
+```
+
+- `lib/net8.0/` holds exactly `Truvio.Commerce.BuyingAssistant.dll` and `Anthropic.dll`, never a `Microsoft.*` or `System.*` assembly.
+- The nuspec declares no dependency on Anthropic (the reference is `PrivateAssets="all"`); only the Dynamicweb floor dependencies remain.
+- `-p:DynamicwebVersion=10.29.6` builds the same package for `net10.0` (Dynamicweb 10.29 ships net10.0 only); `lib/net10.0/` then carries Anthropic's net9.0 assembly. Prefer the floor build unless a host needs the newer API surface.
+- The app only calls the Messages API, so it never loads Anthropic's `Microsoft.Extensions.AI` adapter types; a stock host's Microsoft.Extensions.AI.Abstractions 9.8 is never asked for 10.2.
+
+Verify before handing it out:
+
+```powershell
+Expand-Archive <folder>\Truvio.Commerce.BuyingAssistant.<version>.nupkg <folder>\x
+Get-ChildItem <folder>\x\lib -Recurse -File | Select-Object -ExpandProperty Name   # Anthropic.dll, Truvio.Commerce.BuyingAssistant.dll
+Select-String -Path <folder>\x\Truvio.Commerce.BuyingAssistant.nuspec -Pattern 'Anthropic'   # no <dependency id="Anthropic">
+```
+
+The nuget.org package is built without the switch and keeps its Anthropic dependency.
+
 ## Installing without the App Store
 
 - Package reference in the host csproj: `<PackageReference Include="Truvio.Commerce.BuyingAssistant" Version="<version>" />`

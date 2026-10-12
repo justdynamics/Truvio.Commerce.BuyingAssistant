@@ -14,8 +14,8 @@
 
     <!-- NuGet / Dynamicweb App Store metadata -->
     <PackageId>Truvio.Commerce.BuyingAssistant</PackageId>
-    <Version>0.2.1-beta</Version>
-    <AssemblyVersion>0.2.1.0</AssemblyVersion>
+    <Version>0.3.0-beta</Version>
+    <AssemblyVersion>0.3.0.0</AssemblyVersion>
     <Title>Truvio Buying Assistant</Title>
     <Description>Truvio Buying Assistant: an AI buying assistant for Dynamicweb 10 storefronts, by JustDynamics.
 
@@ -33,6 +33,7 @@ WHAT IS IN THE BOX
 - Built-in tools that run inside the host: catalog search, product detail with specs and variants, price at quantity (price providers, customer agreements and quantity breaks apply), stock per stock location, categories, the shopper's account and cart, recent orders for reorders.
 - Optional MCP connection (Direct from the host, or Anthropic's connector) with a tool allowlist and a write guard, so the assistant can use backend tools such as documentation search.
 - Settings screen under Settings > Apps > Buying Assistant: API key, model (claude-opus-5-5 by default), effort, global instructions and skills, search query, MCP, limits, anonymous access, logging.
+- Bill-of-materials mode: a synchronous estimator a page template can call (Truvio.Commerce.BuyingAssistant.Bom.BomEstimator) that turns a job description into a platform-priced bill of materials in one model call, with its own settings tab.
 - Swift 2 paragraph layout, JS and CSS served by the app; a status file Dynamo can read to verify the configuration and the last run.
 
 Requires Dynamicweb 10.27 or newer and a restart after installation. Uses the Anthropic API (a key is required; the Dynamo key is reused when present). Source and documentation: https://github.com/justdynamics/Truvio.Commerce.BuyingAssistant</Description>
@@ -52,6 +53,13 @@ Requires Dynamicweb 10.27 or newer and a restart after installation. Uses the An
   <PropertyGroup>
     <!-- Overridable per host: dotnet build -p:DynamicwebVersion=10.29.1-PreRelease -->
     <DynamicwebVersion Condition="'$(DynamicwebVersion)' == ''">10.27.9</DynamicwebVersion>
+    <!-- Dynamicweb 10.29 and later ship net10.0 only; earlier versions (the floor) also ship net8.0. -->
+    <DwMajorMinor>$([System.Text.RegularExpressions.Regex]::Match('$(DynamicwebVersion)', '^\d+\.\d+').Value)</DwMajorMinor>
+    <DwMajorMinor Condition="'$(DwMajorMinor)' == ''">0.0</DwMajorMinor>
+    <TargetFramework Condition="$([MSBuild]::VersionGreaterThanOrEquals('$(DwMajorMinor)', '10.29'))">net10.0</TargetFramework>
+    <!-- Anthropic 12.9 ships net8.0 and net9.0 assemblies; net10.0 consumes the net9.0 one. -->
+    <AnthropicLibTfm>net8.0</AnthropicLibTfm>
+    <AnthropicLibTfm Condition="'$(TargetFramework)' == 'net10.0'">net9.0</AnthropicLibTfm>
   </PropertyGroup>
 
   <ItemGroup>
@@ -86,13 +94,18 @@ Requires Dynamicweb 10.27 or newer and a restart after installation. Uses the An
     <PackageReference Include="Dynamicweb.Host.Core" Version="$(DynamicwebVersion)" />
     <PackageReference Include="Dynamicweb.Application.UI" Version="$(DynamicwebVersion)" />
     <PackageReference Include="Dynamicweb.Apps.UI" Version="$(DynamicwebVersion)" />
-    <PackageReference Include="Anthropic" Version="12.9.0" />
+    <PackageReference Include="Anthropic" Version="12.9.0" Condition="'$(BundleAnthropic)' != 'true'" />
+    <!-- Bundled build: Anthropic is compiled against but not declared as a NuGet dependency, so a local
+         install never fetches its transitive Microsoft.* / System.* packages. -->
+    <PackageReference Include="Anthropic" Version="12.9.0" PrivateAssets="all" GeneratePathProperty="true" Condition="'$(BundleAnthropic)' == 'true'" />
   </ItemGroup>
 
   <!-- Self-contained variant for a LOCAL App Store install (Files/System/AddIns/Local), which does not
-       resolve NuGet dependencies: dotnet pack -p:BundleAnthropic=true. The nuget.org package must NOT bundle it. -->
+       resolve NuGet dependencies: dotnet pack -p:BundleAnthropic=true. lib/<tfm>/ then holds exactly
+       Truvio.Commerce.BuyingAssistant.dll and Anthropic.dll (no Microsoft.* or System.* assembly) and the
+       nuspec declares no Anthropic dependency. The nuget.org package must NOT bundle it. -->
   <ItemGroup Condition="'$(BundleAnthropic)' == 'true'">
-    <None Include="$(NuGetPackageRoot)anthropic/12.9.0/lib/net8.0/Anthropic.dll" Pack="true" PackagePath="lib/net8.0/Anthropic.dll" />
+    <None Include="$(PkgAnthropic)/lib/$(AnthropicLibTfm)/Anthropic.dll" Pack="true" PackagePath="lib/$(TargetFramework)/Anthropic.dll" />
   </ItemGroup>
 
 </Project>

@@ -115,4 +115,38 @@ public sealed class BuyingAssistantSettingsModel : SettingsViewModelBase
     [ConfigurableProperty("Log conversations", "Write one line per request (user, tokens, lines, total) to the Truvio.BuyingAssistant log.")]
     [Settings(Keys.LogConversations, Defaults.LogConversations)]
     public bool LogConversations { get; set; } = Defaults.LogConversations;
+
+    // ---- Bill of materials -----------------------------------------------------------------------
+
+    [ConfigurableProperty("Bill-of-materials mode", "Lets a page template call the one-shot estimator (Truvio.Commerce.BuyingAssistant.Bom.BomEstimator.Estimate). Off answers every estimate with an error and makes no model call.")]
+    [Settings(Keys.BomEnabled, Defaults.BomEnabled)]
+    public bool BomEnabled { get; set; } = Defaults.BomEnabled;
+
+    [ConfigurableProperty("Sizing instructions", "The domain sizing rules for the estimator: units, coverage, waste factors, the accessories a job of this kind needs. The catalog rules (use only listed products, whole units) are always added by the app.")]
+    [Settings(Keys.BomInstructions, Defaults.BomInstructions)]
+    public string BomInstructions { get; set; } = Defaults.BomInstructions;
+
+    [ConfigurableProperty("Descriptive fields", "Category field ids sent to the model for every product, comma separated (pack size, coverage, series, ...).")]
+    [Settings(Keys.BomDescriptiveFields, Defaults.BomDescriptiveFields)]
+    public string BomDescriptiveFields { get; set; } = Defaults.BomDescriptiveFields;
+
+    [ConfigurableProperty("Pack field", "Category field id holding the pack or coverage description, listed in its own column.")]
+    [Settings(Keys.BomPackField, Defaults.BomPackField)]
+    public string BomPackField { get; set; } = Defaults.BomPackField;
+
+    [ConfigurableProperty("Unit-of-measure field", "Category field id holding the selling unit (e.g. BDL, RL, EA). Falls back to the product's default unit, then EA.")]
+    [Settings(Keys.BomUnitField, Defaults.BomUnitField)]
+    public string BomUnitField { get; set; } = Defaults.BomUnitField;
+
+    [ConfigurableProperty("Max output tokens", "For one estimate.")]
+    [Settings(Keys.BomMaxTokens, Defaults.BomMaxTokens)]
+    public int BomMaxTokens { get; set; } = Defaults.BomMaxTokens;
+
+    [ConfigurableProperty("Effort", "low, medium, high or max for the estimator. The model is the one set on the Assistant tab.")]
+    [Settings(Keys.BomEffort, Defaults.BomEffort)]
+    public string BomEffort { get; set; } = Defaults.BomEffort;
+
+    [ConfigurableProperty("Short request message", "Shown when the job description is shorter than 8 characters.")]
+    [Settings(Keys.BomShortPromptMessage, Defaults.BomShortPromptMessage)]
+    public string BomShortPromptMessage { get; set; } = Defaults.BomShortPromptMessage;
 }
