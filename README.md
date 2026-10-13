@@ -36,6 +36,11 @@ Remove every `Truvio.Commerce.BuyingAssistant.*` folder under `Files/System/AddI
 | Settings screen: API key, model (`claude-opus-5-5` by default), effort, global instructions and skills, search query, MCP, limits, anonymous access, logging | Settings > Apps > Buying Assistant |
 | Dynamo setup skill and a status file Dynamo can read | `Files/Dynamo/Skills/`, `Files/Templates/Truvio/BuyingAssistant/status.json` |
 | Storefront endpoint (server-sent events) and assets | `/truvio/buying-assistant/ask`, `/truvio/buying-assistant/assets/` |
+| Bill-of-materials mode: `Truvio.Commerce.BuyingAssistant.Bom.BomEstimator.Estimate(...)`, a synchronous one-call estimator a page template can call during a render; returns a platform-priced, cart-ready bill of materials | Settings > Apps > Buying Assistant, tab "Bill of materials" |
+
+## Bill-of-materials mode
+
+For a "size this job" form on a product page: the template passes the job description, the product being viewed, the user, language, shop, currency and country to `BomEstimator.Estimate`, and renders the `BomResult` (summary, assumptions, priced lines with tier labels and stock, total, notes, or an `Error`). The model sees only the shop's live catalog (SKU, unit, pack and coverage fields, price, quantity breaks, stock) and answers through one forced tool call; every line is re-priced by Dynamicweb before it is returned. The sizing rules are a setting, so nothing in the app is specific to one trade. Settings, API and error texts: [docs/configuration.md](docs/configuration.md#bill-of-materials).
 
 ## Documentation
 

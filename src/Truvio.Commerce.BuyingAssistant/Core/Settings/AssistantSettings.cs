@@ -47,7 +47,29 @@ public sealed record AssistantSettings
     public bool LogConversations { get; init; } = Keys.Defaults.LogConversations;
     public string CartServiceTag { get; init; } = Keys.Defaults.CartServiceTag;
 
-    public bool McpConfigured => McpMode != McpMode.Off && !string.IsNullOrWhiteSpace(McpUrl);
+    public bool BomEnabled { get; init; } = Keys.Defaults.BomEnabled;
+    public string BomInstructions { get; init; } = Keys.Defaults.BomInstructions;
+    public IReadOnlyList<string> BomDescriptiveFields { get; init; } = ParseFieldList(Keys.Defaults.BomDescriptiveFields);
+    public string BomPackField { get; init; } = Keys.Defaults.BomPackField;
+    public string BomUnitField { get; init; } = Keys.Defaults.BomUnitField;
+    public int BomMaxTokens { get; init; } = Keys.Defaults.BomMaxTokens;
+    public string BomEffort { get; init; } = Keys.Defaults.BomEffort;
+    public string BomShortPromptMessage { get; init; } = Keys.Defaults.BomShortPromptMessage;
+
+    /// <summary>Splits a field id list (comma, semicolon or newline separated), trimmed and de-duplicated in order.</summary>
+    public static IReadOnlyList<string> ParseFieldList(string? raw)
+    {
+        var list = new List<string>();
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var part in (raw ?? "").Split(new[] { ',', ';', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries))
+        {
+            var id = part.Trim();
+            if (id.Length > 0 && seen.Add(id)) list.Add(id);
+        }
+        return list;
+    }
+
+    public bool McpConfigured =>McpMode != McpMode.Off && !string.IsNullOrWhiteSpace(McpUrl);
 
     /// <summary>
     /// Builds settings from any key reader. Whitespace-only values count as unset
@@ -103,6 +125,14 @@ public sealed record AssistantSettings
             AllowAnonymous = BoolOr(Keys.AllowAnonymous, Keys.Defaults.AllowAnonymous),
             LogConversations = BoolOr(Keys.LogConversations, Keys.Defaults.LogConversations),
             CartServiceTag = StrOr(Keys.CartServiceTag, Keys.Defaults.CartServiceTag),
+            BomEnabled = BoolOr(Keys.BomEnabled, Keys.Defaults.BomEnabled),
+            BomInstructions = StrOr(Keys.BomInstructions, Keys.Defaults.BomInstructions),
+            BomDescriptiveFields = ParseFieldList(StrOr(Keys.BomDescriptiveFields, Keys.Defaults.BomDescriptiveFields)),
+            BomPackField = StrOr(Keys.BomPackField, Keys.Defaults.BomPackField),
+            BomUnitField = StrOr(Keys.BomUnitField, Keys.Defaults.BomUnitField),
+            BomMaxTokens = Math.Clamp(IntOr(Keys.BomMaxTokens, Keys.Defaults.BomMaxTokens), 1024, 64000),
+            BomEffort = StrOr(Keys.BomEffort, Keys.Defaults.BomEffort).ToLowerInvariant(),
+            BomShortPromptMessage = StrOr(Keys.BomShortPromptMessage, Keys.Defaults.BomShortPromptMessage),
         };
     }
 }

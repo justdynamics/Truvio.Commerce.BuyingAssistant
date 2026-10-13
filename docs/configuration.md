@@ -47,6 +47,53 @@ All keys live under `/Globalsettings/Truvio/BuyingAssistant/` in `Files/GlobalSe
 | Log conversations | `LogConversations` | `True` |
 | Cart service navigation tag | `CartServiceTag` | `CartService` |
 
+## Bill of materials
+
+Settings, Apps, Buying Assistant, tab "Bill of materials". The estimator uses the API key (with its fallbacks) and the model from the Assistant tab, the request length and timeout from Behaviour.
+
+| Setting | Key | Default | Notes |
+|---|---|---|---|
+| Bill-of-materials mode | `Bom/Enabled` | `False` | Switch it on to use the estimator. Off: every estimate returns "The bill-of-materials estimator is switched off." and no model call is made |
+| Sizing instructions | `Bom/Instructions` | a short generic estimator instruction | The shop's domain rules (units, coverage, waste, accessories). The catalog mechanics are always added by the app |
+| Short request message | `Bom/ShortPromptMessage` | `Describe the job first (roof size, pitch, what needs replacing).` | Returned for a description under 8 characters |
+| Descriptive fields | `Bom/DescriptiveFields` | `PackDescription, CoveragePerBundle_SqFt, BundlesPerSq, BundlesPerPallet, Series, Material, ImpactRating, FireRating, Warranty, Coverage, Coverage_SqFt, RValue, Thickness, Width, Length_Ft, Length` | Category field ids sent per product as `Field=value` |
+| Pack field | `Bom/PackField` | `PackDescription` | Category field id shown in the pack/coverage column |
+| Unit-of-measure field | `Bom/UnitField` | `PrimaryUoM` | Category field id for the selling unit; falls back to the product's default unit, then `EA` |
+| Max output tokens | `Bom/MaxTokens` | `8000` | 1024 to 64000 |
+| Effort | `Bom/Effort` | `medium` | low, medium, high, max |
+
+### Calling it from a template
+
+```csharp
+@using Truvio.Commerce.BuyingAssistant.Bom
+var result = BomEstimator.Estimate(new BomRequest
+{
+    Prompt = prompt,
+    ContextProductKey = BomEstimator.CatalogKey(product.Id, product.VariantId),
+    User = Pageview.User,
+    LanguageId = Dynamicweb.Ecommerce.Common.Context.LanguageID,
+    ShopId = Pageview.Area?.EcomShopId,
+    CurrencyCode = Dynamicweb.Ecommerce.Common.Context.Currency?.Code ?? "",
+    CountryCode = Dynamicweb.Ecommerce.Common.Context.Country?.Code2 ?? "",
+    ExtraInstructions = null,
+});
+```
+
+`Estimate` is synchronous and never throws. It lists every active, visible product of the shop in the request language (masters with variants are listed through their active, visible variants as `id|variant`), sends the catalog and the job description to the model in one Messages API call with the forced tool `submit_estimate`, and re-prices every returned line through Dynamicweb (customer prices, quantity breaks, stock) before returning it. Ids the model invents are dropped, as are duplicate lines.
+
+`BomResult`: `Summary`, `Assumptions` (list), `Lines`, `Notes`, `Total`, `Error`, `ModelId`, `InputTokens`, `OutputTokens`. `BomLine`: `ProductId`, `VariantId`, `Sku`, `Name`, `Quantity` (int), `Unit`, `UnitPrice`, `LineTotal`, `TierLabel` (`25+ tier` when a quantity break applies), `Stock`, `InStock`, `Reason`, `IsContextProduct`.
+
+Errors (in `Error`, nothing else set):
+
+| Condition | Text |
+|---|---|
+| Mode switched off | `The bill-of-materials estimator is switched off.` |
+| Description under 8 characters | the Short request message setting |
+| No API key (app key, `ANTHROPIC_API_KEY`, `/Globalsettings/Dynamo/ApiKey` all empty) | `The assistant is not configured (no Anthropic API key found).` |
+| No sellable product in the shop | `No sellable products found for this shop.` |
+| Any exception from the model call or pricing | `The assistant could not size this job right now. ` + exception type name (for example `AnthropicUnauthorizedException`), logged to `Truvio.BuyingAssistant` |
+| The model did not call the tool | `The assistant did not return an estimate. Try describing the job in more detail.` |
+
 ## Paragraph fields (item type `Truvio_BuyingAssistant`)
 
 Title, Intro, Placeholder, ButtonLabel, ExamplePrompts (one per line), AddAllLabel, AnonymousMessage, Mode (`auto`, `product`, `standalone`), Skills (filter), Instructions (business and placement instructions, added to the global ones), SkillsText (`## Skill:` sections, added to the global skills; a paragraph skill with the same name replaces the global one).

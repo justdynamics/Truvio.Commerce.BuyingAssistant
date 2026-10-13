@@ -15,6 +15,7 @@ public sealed class BuyingAssistantSettingsScreen : EditScreenBase<BuyingAssista
     private const string KnowledgeTab = "Instructions and skills";
     private const string ToolsTab = "Catalog and MCP tools";
     private const string BehaviourTab = "Behaviour";
+    private const string BomTab = "Bill of materials";
 
     protected override string GetScreenName() => "Buying Assistant";
 
@@ -74,6 +75,26 @@ public sealed class BuyingAssistantSettingsScreen : EditScreenBase<BuyingAssista
             EditorFor(m => m.AllowAnonymous),
             EditorFor(m => m.LogConversations),
         ]);
+
+        AddComponents(BomTab, "Estimator",
+        [
+            EditorFor(m => m.BomEnabled),
+            EditorFor(m => m.BomInstructions),
+            EditorFor(m => m.BomShortPromptMessage),
+        ]);
+
+        AddComponents(BomTab, "Catalog fields",
+        [
+            EditorFor(m => m.BomDescriptiveFields),
+            EditorFor(m => m.BomPackField),
+            EditorFor(m => m.BomUnitField),
+        ]);
+
+        AddComponents(BomTab, "Model",
+        [
+            EditorFor(m => m.BomMaxTokens),
+            EditorFor(m => m.BomEffort),
+        ]);
     }
 
     protected override EditorBase? GetEditor(string property) => property switch
@@ -85,6 +106,9 @@ public sealed class BuyingAssistantSettingsScreen : EditScreenBase<BuyingAssista
         nameof(BuyingAssistantSettingsModel.Skills) => new Textarea { Rows = 18 },
         nameof(BuyingAssistantSettingsModel.McpAllowedTools) => new Textarea { Rows = 6 },
         nameof(BuyingAssistantSettingsModel.CatalogFields) => new Textarea { Rows = 3 },
+        nameof(BuyingAssistantSettingsModel.BomInstructions) => new Textarea { Rows = 16 },
+        nameof(BuyingAssistantSettingsModel.BomDescriptiveFields) => new Textarea { Rows = 3 },
+        nameof(BuyingAssistantSettingsModel.BomMaxTokens) => Num("tokens"),
 
         nameof(BuyingAssistantSettingsModel.SearchResultCap) => Num("products"),
         nameof(BuyingAssistantSettingsModel.MaxIterations) => Num("steps"),

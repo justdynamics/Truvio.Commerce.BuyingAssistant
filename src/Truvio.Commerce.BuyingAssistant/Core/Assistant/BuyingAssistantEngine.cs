@@ -621,7 +621,7 @@ public sealed class BuyingAssistantEngine
         try { _progress?.Invoke(evt); } catch { /* progress is best effort */ }
     }
 
-    private static Effort ParseEffort(string effort) => effort switch
+    internal static Effort ParseEffort(string effort) => effort switch
     {
         "low" => Effort.Low,
         "high" or "xhigh" => Effort.High,

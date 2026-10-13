@@ -43,16 +43,33 @@ public sealed class DwCatalogGateway : ICatalogGateway
     public CatalogContextInfo Context { get; }
 
     public DwCatalogGateway(AssistantSettings settings)
+        : this(settings, EcomContext.LanguageID, EcomContext.Currency, EcomContext.Country, PageView.Current()?.Area?.EcomShopId, UserContext.Current.User)
+    {
+    }
+
+    /// <summary>
+    /// Explicit context for callers that already know who and where (the BOM estimator, called from a
+    /// page template with the template's own language, shop, currency, country and user). Stock location,
+    /// VAT display and reverse charge still come from the current ecommerce context.
+    /// </summary>
+    public DwCatalogGateway(AssistantSettings settings, string languageId, string? currencyCode, string? countryCode, string? shopId, User? user)
+        : this(settings,
+               string.IsNullOrEmpty(languageId) ? EcomContext.LanguageID : languageId,
+               string.IsNullOrEmpty(currencyCode) ? EcomContext.Currency : EcomServices.Currencies.GetCurrency(currencyCode),
+               string.IsNullOrEmpty(countryCode) ? EcomContext.Country : EcomServices.Countries.GetCountry(countryCode),
+               shopId,
+               user)
+    {
+    }
+
+    private DwCatalogGateway(AssistantSettings settings, string languageId, Currency? currency, Country? country, string? shopId, User? user)
     {
         _settings = settings;
-        var pageView = PageView.Current();
-        var area = pageView?.Area;
-        _languageId = EcomContext.LanguageID;
-        _currency = EcomContext.Currency ?? EcomServices.Currencies.GetDefaultCurrency();
-        _country = EcomContext.Country;
-        var shopId = area?.EcomShopId;
+        _languageId = languageId;
+        _currency = currency ?? EcomServices.Currencies.GetDefaultCurrency();
+        _country = country;
         _shop = string.IsNullOrEmpty(shopId) ? null : EcomServices.Shops.GetShop(shopId);
-        _user = UserContext.Current.User;
+        _user = user;
         _stockLocation = EcomContext.StockLocation;
         _withVat = EcomContext.DisplayPricesWithVat;
         _priceContext = new PriceContext(_currency, _country ?? EcomServices.Countries.GetCountries().FirstOrDefault()!, _shop, _user, EcomContext.ReverseChargeForVatEnabled, null);
@@ -438,6 +455,47 @@ public sealed class DwCatalogGateway : ICatalogGateway
         var lineTotal = Math.Round(unitPrice * quantity, 2);
         return new CatalogPriceQuote(product.Id, product.VariantId ?? "", quantity, unit, unitPrice, FormatMoney(unitPrice), lineTotal, FormatMoney(lineTotal), tier, _currency.Code);
     }
+
+    /// <summary>
+    /// Quantity breaks above 1 visible to this customer: the price providers' quantity prices first, the
+    /// price matrix rows the customer may see when a custom provider reports none.
+    /// </summary>
+    internal IReadOnlyList<(double Quantity, double UnitPrice)> GetQuantityBreaks(Product product)
+    {
+        var breaks = new List<(double Quantity, double UnitPrice)>();
+        try
+        {
+            foreach (var kv in PriceManager.GetQuantityPrices(_priceContext, product))
+                if (kv.Key.Quantity > 1) breaks.Add((kv.Key.Quantity, Amount(kv.Value)));
+        }
+        catch { }
+        if (breaks.Count > 0) return breaks;
+        try
+        {
+            foreach (var row in EcomServices.Prices.GetByProductId(product.Id) ?? Enumerable.Empty<Price>())
+            {
+                if (row == null || row.IsInformative || row.Quantity <= 1) continue;
+                if (!string.IsNullOrEmpty(row.CurrencyCode) && !row.CurrencyCode.Equals(_currency.Code, StringComparison.OrdinalIgnoreCase)) continue;
+                if (!string.IsNullOrEmpty(row.VariantId) && !row.VariantId.Equals(product.VariantId ?? "", StringComparison.OrdinalIgnoreCase)) continue;
+                if (!PriceHelper.ShowPrice(row, _priceContext, product, false)) continue;
+                breaks.Add((row.Quantity, row.Amount));
+            }
+        }
+        catch { }
+        return breaks;
+    }
+
+    /// <summary>One product or variant exactly as asked for, no master fallback; null when it does not exist in this language.</summary>
+    internal Product? GetExact(string productId, string variantId)
+    {
+        var product = LoadProduct(productId, variantId);
+        if (product == null) return null;
+        return string.Equals(product.VariantId ?? "", variantId ?? "", StringComparison.OrdinalIgnoreCase) ? product : null;
+    }
+
+    internal string LanguageId => _languageId;
+
+    internal string? ShopId => _shop?.Id;
 
     /// <summary>DW's display price (already with or without VAT per the area setting); falls back to the explicit VAT variants.</summary>
     private double Amount(PriceInfo? info)
