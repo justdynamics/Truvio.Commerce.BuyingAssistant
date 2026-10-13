@@ -134,7 +134,7 @@ public sealed class BuyingAssistantSettingsModel : SettingsViewModelBase
     [Settings(Keys.BomPackField, Defaults.BomPackField)]
     public string BomPackField { get; set; } = Defaults.BomPackField;
 
-    [ConfigurableProperty("Unit-of-measure field", "Category field id holding the selling unit (e.g. BDL, RL, EA). Falls back to the product's default unit, then EA.")]
+    [ConfigurableProperty("Unit-of-measure field", "Category field id holding the selling unit (e.g. BOX, PK, EA). Falls back to the product's default unit, then EA.")]
     [Settings(Keys.BomUnitField, Defaults.BomUnitField)]
     public string BomUnitField { get; set; } = Defaults.BomUnitField;
 

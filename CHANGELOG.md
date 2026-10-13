@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.1-beta (2026-10-13)
+
+- Bill-of-materials defaults name no trade: the descriptive category fields, the pack field and the unit-of-measure field ship blank (a shop names its own fields in the "Bill of materials" tab), the short request message reads "Describe the job first (sizes, materials, what it is for)." and the unit field's help gives "BOX, PK, EA" as examples. A host that relied on the earlier defaults sets `Bom/DescriptiveFields`, `Bom/PackField`, `Bom/UnitField` and `Bom/ShortPromptMessage` explicitly.
+
 ## 0.3.0-beta (2026-10-13)
 
 - Bill-of-materials mode: `Truvio.Commerce.BuyingAssistant.Bom.BomEstimator.Estimate(BomRequest)` (and a positional overload) turns a job description into a cart-ready bill of materials with one Messages API call (forced tool `submit_estimate`) over the shop's live catalog, synchronously, so a page template can call it during a render. Every line is re-priced through `DwCatalogGateway` and `ProposalPricer` (customer prices, quantity breaks with a "25+ tier" label, stock). `BomEstimator.CatalogKey(productId, variantId)` builds the `id` or `id|variant` key.

@@ -80,14 +80,12 @@ public static class AssistantSettingKeys
             "- Add a sensible waste allowance for the kind of job and state it as an assumption, unless the customer gives one.\n" +
             "- Include the accessories and consumables the job normally needs when the catalog supplies them, and only what the job actually needs.\n" +
             "- State every assumption you make where the description is silent.";
-        public const string BomDescriptiveFields =
-            "PackDescription, CoveragePerBundle_SqFt, BundlesPerSq, BundlesPerPallet, Series, Material, ImpactRating, FireRating, Warranty, " +
-            "Coverage, Coverage_SqFt, RValue, Thickness, Width, Length_Ft, Length";
-        public const string BomPackField = "PackDescription";
-        public const string BomUnitField = "PrimaryUoM";
+        public const string BomDescriptiveFields = "";
+        public const string BomPackField = "";
+        public const string BomUnitField = "";
         public const int BomMaxTokens = 8000;
         public const string BomEffort = "medium";
-        public const string BomShortPromptMessage = "Describe the job first (roof size, pitch, what needs replacing).";
+        public const string BomShortPromptMessage = "Describe the job first (sizes, materials, what it is for).";
     }
 
     /// <summary>Keys outside the app's own node that are consulted as fallbacks.</summary>

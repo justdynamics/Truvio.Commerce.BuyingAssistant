@@ -120,13 +120,12 @@ public class BomSettingsTests
     {
         var s = AssistantSettings.FromReader(_ => null);
         Assert.False(s.BomEnabled);
-        Assert.Equal("PackDescription", s.BomPackField);
-        Assert.Equal("PrimaryUoM", s.BomUnitField);
+        Assert.Equal("", s.BomPackField);
+        Assert.Equal("", s.BomUnitField);
         Assert.Equal(8000, s.BomMaxTokens);
         Assert.Equal("medium", s.BomEffort);
-        Assert.Equal("Describe the job first (roof size, pitch, what needs replacing).", s.BomShortPromptMessage);
-        Assert.Equal(16, s.BomDescriptiveFields.Count);
-        Assert.Equal("PackDescription", s.BomDescriptiveFields[0]);
+        Assert.Equal("Describe the job first (sizes, materials, what it is for).", s.BomShortPromptMessage);
+        Assert.Empty(s.BomDescriptiveFields);
         Assert.DoesNotContain("roof", s.BomInstructions, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -212,7 +211,7 @@ public class BomRunnerTests
     public void Short_prompt_returns_the_default_message(string prompt)
     {
         var r = BomRunner.Run(Request(prompt), Settings(), Catalog, MustNotCall, null);
-        Assert.Equal("Describe the job first (roof size, pitch, what needs replacing).", r.Error);
+        Assert.Equal("Describe the job first (sizes, materials, what it is for).", r.Error);
     }
 
     [Fact]
