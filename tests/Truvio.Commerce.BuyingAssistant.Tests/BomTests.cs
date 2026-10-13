@@ -119,7 +119,7 @@ public class BomSettingsTests
     public void Defaults_apply_when_nothing_is_saved()
     {
         var s = AssistantSettings.FromReader(_ => null);
-        Assert.True(s.BomEnabled);
+        Assert.False(s.BomEnabled);
         Assert.Equal("PackDescription", s.BomPackField);
         Assert.Equal("PrimaryUoM", s.BomUnitField);
         Assert.Equal(8000, s.BomMaxTokens);

@@ -34,18 +34,24 @@ The Dynamicweb local add-in installer (`Files/System/AddIns/Local`) does not res
 dotnet pack src\Truvio.Commerce.BuyingAssistant\Truvio.Commerce.BuyingAssistant.csproj -c Release -p:BundleAnthropic=true --output <folder>
 ```
 
-- `lib/net8.0/` holds exactly `Truvio.Commerce.BuyingAssistant.dll` and `Anthropic.dll`, never a `Microsoft.*` or `System.*` assembly.
+The local installer gives every DLL in a package its own folder under `Files/System/AddIns/Installed` (`<dll name>.<package version>`) and extracts a root `Files/` folder to `Files/System/AddIns/Installed/Files` instead of the host's `Files/` (Dynamicweb 10.29.6, `LocalAddinProvider.InstallNuGetPackage`). So the local package is shaped to land in exactly one Installed folder:
+
+- `lib/net8.0/` holds exactly `Truvio.Commerce.BuyingAssistant.dll`, never a second DLL and never a `Microsoft.*` or `System.*` assembly. `Anthropic.dll` is an embedded resource of the app assembly (`Bundled.Anthropic.dll`); `Packaging/BundledAnthropic.cs` loads it into the add-in's load context when that context cannot find Anthropic elsewhere.
+- No `Files/` entries: the app writes the item type, the Swift layout and the Dynamo skill from its embedded resources at startup (`AssetInstaller`).
 - The nuspec declares no dependency on Anthropic (the reference is `PrivateAssets="all"`); only the Dynamicweb floor dependencies remain.
-- `-p:DynamicwebVersion=10.29.6` builds the same package for `net10.0` (Dynamicweb 10.29 ships net10.0 only); `lib/net10.0/` then carries Anthropic's net9.0 assembly. Prefer the floor build unless a host needs the newer API surface.
+- `-p:DynamicwebVersion=10.29.6` builds the same package for `net10.0` (Dynamicweb 10.29 ships net10.0 only); the embedded assembly is then Anthropic's net9.0 one. Prefer the floor build unless a host needs the newer API surface.
 - The app only calls the Messages API, so it never loads Anthropic's `Microsoft.Extensions.AI` adapter types; a stock host's Microsoft.Extensions.AI.Abstractions 9.8 is never asked for 10.2.
 
 Verify before handing it out:
 
 ```powershell
 Expand-Archive <folder>\Truvio.Commerce.BuyingAssistant.<version>.nupkg <folder>\x
-Get-ChildItem <folder>\x\lib -Recurse -File | Select-Object -ExpandProperty Name   # Anthropic.dll, Truvio.Commerce.BuyingAssistant.dll
+Get-ChildItem <folder>\x -Recurse -File | Where-Object Extension -eq '.dll' | Select-Object -ExpandProperty Name   # Truvio.Commerce.BuyingAssistant.dll only
+Test-Path <folder>\x\Files   # False
 Select-String -Path <folder>\x\Truvio.Commerce.BuyingAssistant.nuspec -Pattern 'Anthropic'   # no <dependency id="Anthropic">
 ```
+
+After the install and a restart, `Files/System/AddIns/Installed` has one `Truvio.Commerce.BuyingAssistant.<version>` folder and no `Anthropic.*` or `Files` folder.
 
 The nuget.org package is built without the switch and keeps its Anthropic dependency.
 
@@ -63,8 +69,8 @@ A host that already has `Anthropic.dll` in its own bin (for example from another
 
 Before placing a new version:
 
-1. Remove every `Truvio.Commerce.BuyingAssistant.*` folder under `Files/System/AddIns/Installed/`.
-2. Place the new version folder, keeping `Anthropic.dll` alongside it as described above.
+1. Remove every `Truvio.Commerce.BuyingAssistant.*` folder under `Files/System/AddIns/Installed/`, and the `Anthropic.<version>` and `Files` folders an earlier local package (0.3.0-beta builds before the one-folder layout) left there.
+2. Place the new version folder (for a manual or hosted install, with `Anthropic.dll` alongside the app DLL as described above; the local package needs nothing else).
 3. Restart the host once.
 
 This applies to every install path above except the App Store, which replaces the version folder itself.

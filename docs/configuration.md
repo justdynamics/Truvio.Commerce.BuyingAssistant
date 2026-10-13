@@ -53,7 +53,7 @@ Settings, Apps, Buying Assistant, tab "Bill of materials". The estimator uses th
 
 | Setting | Key | Default | Notes |
 |---|---|---|---|
-| Bill-of-materials mode | `Bom/Enabled` | `True` | Off: every estimate returns "The bill-of-materials estimator is switched off." and no model call is made |
+| Bill-of-materials mode | `Bom/Enabled` | `False` | Switch it on to use the estimator. Off: every estimate returns "The bill-of-materials estimator is switched off." and no model call is made |
 | Sizing instructions | `Bom/Instructions` | a short generic estimator instruction | The shop's domain rules (units, coverage, waste, accessories). The catalog mechanics are always added by the app |
 | Short request message | `Bom/ShortPromptMessage` | `Describe the job first (roof size, pitch, what needs replacing).` | Returned for a description under 8 characters |
 | Descriptive fields | `Bom/DescriptiveFields` | `PackDescription, CoveragePerBundle_SqFt, BundlesPerSq, BundlesPerPallet, Series, Material, ImpactRating, FireRating, Warranty, Coverage, Coverage_SqFt, RValue, Thickness, Width, Length_Ft, Length` | Category field ids sent per product as `Field=value` |

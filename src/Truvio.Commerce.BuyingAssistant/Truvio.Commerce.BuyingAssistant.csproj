@@ -65,7 +65,12 @@ Requires Dynamicweb 10.27 or newer and a restart after installation. Uses the An
   <ItemGroup>
     <None Include="icon.png" Pack="true" PackagePath="\" />
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
-    <!-- Files/ entries in the nupkg are extracted into the host's Files/ folder by the DW App Store. -->
+  </ItemGroup>
+
+  <!-- Files/ entries in the nupkg are extracted into the host's Files/ folder by the DW App Store. The local add-in
+       installer extracts them under Files/System/AddIns/Installed/Files instead, so the local-install package
+       (BundleAnthropic) leaves them out; AssetInstaller writes the same files from embedded resources at startup. -->
+  <ItemGroup Condition="'$(BundleAnthropic)' != 'true'">
     <None Include="Frontend\Assets\ItemType_Truvio_BuyingAssistant.xml" Pack="true" PackagePath="Files\System\Items\ItemType_Truvio_BuyingAssistant.xml" />
     <None Include="Frontend\Assets\Truvio_BuyingAssistant.cshtml" Pack="true" PackagePath="Files\Templates\Designs\Swift-v2\Paragraph\Truvio_BuyingAssistant\Truvio_BuyingAssistant.cshtml" />
     <None Include="Frontend\Assets\truvio-buying-assistant-setup.md" Pack="true" PackagePath="Files\Dynamo\Skills\truvio-buying-assistant-setup.md" />
@@ -100,12 +105,17 @@ Requires Dynamicweb 10.27 or newer and a restart after installation. Uses the An
     <PackageReference Include="Anthropic" Version="12.9.0" PrivateAssets="all" GeneratePathProperty="true" Condition="'$(BundleAnthropic)' == 'true'" />
   </ItemGroup>
 
-  <!-- Self-contained variant for a LOCAL App Store install (Files/System/AddIns/Local), which does not
-       resolve NuGet dependencies: dotnet pack -p:BundleAnthropic=true. lib/<tfm>/ then holds exactly
-       Truvio.Commerce.BuyingAssistant.dll and Anthropic.dll (no Microsoft.* or System.* assembly) and the
-       nuspec declares no Anthropic dependency. The nuget.org package must NOT bundle it. -->
+  <!-- Self-contained variant for a LOCAL install (Files/System/AddIns/Local), where Anthropic's transitive
+       Microsoft.* and System.* packages must never be fetched: dotnet pack -p:BundleAnthropic=true. The local
+       installer puts every DLL of a package into its own Installed folder, so Anthropic.dll is embedded in the app
+       assembly (Packaging/BundledAnthropic.cs loads it) and lib/<tfm>/ holds exactly
+       Truvio.Commerce.BuyingAssistant.dll: one package, one Installed folder. The nuspec declares no Anthropic
+       dependency. The nuget.org package must NOT bundle it. -->
+  <PropertyGroup Condition="'$(BundleAnthropic)' == 'true'">
+    <DefineConstants>$(DefineConstants);BUNDLED_ANTHROPIC</DefineConstants>
+  </PropertyGroup>
   <ItemGroup Condition="'$(BundleAnthropic)' == 'true'">
-    <None Include="$(PkgAnthropic)/lib/$(AnthropicLibTfm)/Anthropic.dll" Pack="true" PackagePath="lib/$(TargetFramework)/Anthropic.dll" />
+    <EmbeddedResource Include="$(PkgAnthropic)/lib/$(AnthropicLibTfm)/Anthropic.dll" LogicalName="Bundled.Anthropic.dll" />
   </ItemGroup>
 
 </Project>

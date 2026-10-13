@@ -73,7 +73,7 @@ public static class AssistantSettingKeys
         public const bool LogConversations = true;
         public const string CartServiceTag = "CartService";
 
-        public const bool BomEnabled = true;
+        public const bool BomEnabled = false;
         public const string BomInstructions =
             "You are the bill-of-materials estimator for this shop. A customer describes a job in plain language; size the materials it needs.\n" +
             "- Convert the job's dimensions into the catalog's sellable units using the pack and coverage information listed for each product.\n" +
